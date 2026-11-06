@@ -15,8 +15,10 @@ type Story = StoryObj<typeof meta>
 
 export const Sources: Story = {
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByText('engineering', { selector: 'h2' }))
-    await expect(canvas.getByText('Accepted entries')).toBeVisible()
+    const source = canvas.getByRole('heading', { name: 'engineering' }).closest('details')!
+    await expect(source).not.toHaveAttribute('open')
+    await userEvent.click(canvas.getByRole('heading', { name: 'engineering' }))
+    await expect(source).toHaveAttribute('open')
     await userEvent.click(canvas.getByRole('tab', { name: 'Resolved configuration' }))
     await expect(canvas.getByRole('tab', { name: 'Resolved configuration' })).toHaveAttribute('aria-selected', 'true')
     await expect(canvas.getByRole('textbox', { name: 'Resolved configuration JSON' })).toHaveValue(
@@ -24,7 +26,9 @@ export const Sources: Story = {
     )
     await userEvent.keyboard('{ArrowRight}')
     await expect(canvas.getByRole('tab', { name: 'Diagnostics (1)' })).toHaveFocus()
-    await expect(canvas.getByText('unresolved relationship')).toBeVisible()
+    await expect(canvas.getByRole('tab', { name: 'Diagnostics (1)' })).toHaveAttribute('aria-selected', 'true')
+    await expect(canvas.getByRole('tabpanel')).toHaveAttribute('id', 'panel-diagnostics')
+    await expect(canvas.getAllByRole('listitem')).toHaveLength(operatorPage().diagnostics.length)
   },
 }
 
