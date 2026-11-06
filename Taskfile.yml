@@ -40,6 +40,27 @@ tasks:
       - task: ui:build
       - go build -trimpath -o bin/jargonary ./cmd/jargonary
 
+  docker:build:
+    desc: Build and load both CI and release Docker images
+    cmds:
+      - task: docker:build:ci
+      - task: docker:build:release
+
+  docker:build:ci:
+    desc: Build and load glossary:test from source as in CI
+    cmds:
+      - docker buildx build --load --tag glossary:test .
+
+  docker:build:release:
+    desc: Build and load glossary:release-test using Dockerfile.release (ARCH defaults to amd64)
+    vars:
+      ARCH: '{{.ARCH | default "amd64"}}'
+    cmds:
+      - task: ui:build
+      - mkdir -p dist/docker/{{.ARCH}}
+      - CGO_ENABLED=0 GOOS=linux GOARCH={{.ARCH}} go build -trimpath -ldflags="-s -w" -o dist/docker/{{.ARCH}}/jargonary ./cmd/jargonary
+      - docker buildx build --load --platform linux/{{.ARCH}} --file Dockerfile.release --tag glossary:release-test dist/docker
+
   run:
     desc: Build the UI and run with the example configuration
     cmds:
