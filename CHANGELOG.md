@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/alampros/jargonary/compare/v0.1.0...v0.2.0) (2026-11-06)
+
+
+### Features
+
+* **docs:** include editor on docs site ([05fce06](https://github.com/alampros/jargonary/commit/05fce064c1f27d7f3c7b6983289f1a9ab484c3a1))
+
 ## 0.1.0 (2026-11-06)
 
 
