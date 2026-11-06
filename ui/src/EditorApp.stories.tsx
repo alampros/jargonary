@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect } from 'storybook/test'
+import { expect, fn, waitFor } from 'storybook/test'
+import { parse } from 'yaml'
 import EditorApp from './EditorApp'
 import { type FilePickerWindow } from './editorDocument'
 import { editorYamlFixture } from './test/editorYamlFixture'
@@ -73,7 +74,12 @@ const sample = {
     },
   ],
 }
+const writeFile = fn<(value: string) => Promise<void>>()
+const closeFile = fn<() => Promise<void>>()
+
 function mockLocalFile(name: string, initial: string) {
+  writeFile.mockReset()
+  closeFile.mockReset()
   const previous = (window as FilePickerWindow).showOpenFilePicker
   let text = initial
   ;(window as FilePickerWindow).showOpenFilePicker = async () => [
@@ -81,10 +87,10 @@ function mockLocalFile(name: string, initial: string) {
       name,
       getFile: async () => new File([text], name),
       createWritable: async () => ({
-        write: async (value) => {
+        write: writeFile.mockImplementation(async (value) => {
           text = value
-        },
-        close: async () => {},
+        }),
+        close: closeFile,
         abort: async () => {},
       }),
     },
@@ -123,7 +129,11 @@ export const EditingWorkflow: Story = {
     await userEvent.type(definition, ' Additional context.', { skipClick: true })
     await expect(definition).toHaveTextContent('Additional context.')
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
-    await expect(canvas.getByRole('status')).toHaveTextContent('Saved product-engineering.json to disk.')
+    await waitFor(() => expect(closeFile).toHaveBeenCalledOnce())
+    const saved = JSON.parse(writeFile.mock.lastCall![0])
+    await expect(saved.entries[0].term).toBe('Application programming interface')
+    await expect(saved.entries[0].senses[0].definition).toContain('Additional context.')
+    await expect(canvas.getByRole('button', { name: 'Save' })).toBeDisabled()
     await userEvent.type(canvas.getByLabelText('Find an entry'), 'Latency')
     await userEvent.click(canvas.getByRole('button', { name: 'Latency, 1 meaning' }))
     await expect(canvas.getByLabelText('Term', { exact: true })).toHaveValue('Latency')
@@ -148,29 +158,31 @@ export const YamlEditing: Story = {
     await userEvent.clear(canvas.getByLabelText('Term', { exact: true }))
     await userEvent.type(canvas.getByLabelText('Term', { exact: true }), 'YAML API')
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
-    await expect(canvas.getByRole('status')).toHaveTextContent('Saved platform.yaml to disk.')
+    await waitFor(() => expect(closeFile).toHaveBeenCalledOnce())
+    const saved = writeFile.mock.lastCall![0]
+    await expect(parse(saved).entries[0].term).toBe('YAML API')
+    await expect(saved).toContain("term: 'YAML API' # Preferred name")
+    await expect(saved).toContain('# Owned by the platform team')
+    await expect(canvas.getByRole('button', { name: 'Save' })).toBeDisabled()
     await userEvent.click(canvas.getByRole('switch', { name: 'Raw YAML' }))
-    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toHaveTextContent(
-      "term: 'YAML API' # Preferred name",
-    )
-    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toHaveTextContent(
-      '# Owned by the platform team',
-    )
+    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toBeVisible()
   },
 }
 
 export const NewGlossary: Story = {
   beforeEach: () => {
+    writeFile.mockReset()
+    closeFile.mockReset()
     const previous = (window as FilePickerWindow).showSaveFilePicker
     let text = ''
     ;(window as FilePickerWindow).showSaveFilePicker = async () => ({
       name: 'new-glossary.yaml',
       getFile: async () => new File([text], 'new-glossary.yaml'),
       createWritable: async () => ({
-        write: async (value) => {
+        write: writeFile.mockImplementation(async (value) => {
           text = value
-        },
-        close: async () => {},
+        }),
+        close: closeFile,
         abort: async () => {},
       }),
     })
@@ -185,11 +197,17 @@ export const NewGlossary: Story = {
     await userEvent.clear(name)
     await userEvent.type(name, 'A new team glossary')
     await userEvent.selectOptions(canvas.getByLabelText('New glossary format'), 'yaml')
-    await expect(canvas.getByText('Not saved to disk')).toBeVisible()
+    await expect(writeFile).not.toHaveBeenCalled()
+    await expect(canvas.getByRole('button', { name: 'Save' })).toBeEnabled()
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
-    await expect(canvas.getByRole('status')).toHaveTextContent('Saved new-glossary.yaml to disk.')
+    await waitFor(() => expect(closeFile).toHaveBeenCalledOnce())
+    await expect(parse(writeFile.mock.lastCall![0])).toEqual({
+      version: '1',
+      name: 'A new team glossary',
+      entries: [],
+    })
+    await expect(canvas.getByRole('button', { name: 'Save' })).toBeDisabled()
     await userEvent.click(canvas.getByRole('switch', { name: 'Raw YAML' }))
-    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toHaveTextContent('name: A new team glossary')
-    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toHaveTextContent('entries: []')
+    await expect(canvas.getByRole('textbox', { name: 'Glossary YAML' })).toBeVisible()
   },
 }
