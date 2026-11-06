@@ -34,6 +34,7 @@ export default defineConfig({
         { label: 'Overview', slug: 'index' },
         { label: 'Getting started', slug: 'getting-started' },
         { label: 'Glossary format', slug: 'dictionary-format' },
+        { label: 'Glossary editor', link: `${url.pathname.replace(/\/$/, '')}/editor/` },
         { label: 'Configuration and deployment', slug: 'reference' },
         { label: 'Connect an AI agent', slug: 'mcp' },
         { label: 'Branding and themes', slug: 'customization' },

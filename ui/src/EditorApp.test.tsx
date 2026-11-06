@@ -76,6 +76,12 @@ beforeEach(() => {
   vi.stubGlobal('isSecureContext', true)
 })
 describe('glossary editor', () => {
+  it('returns to documentation when hosted as a standalone editor', () => {
+    vi.stubGlobal('showOpenFilePicker', undefined)
+    render(<EditorApp siteName="Jargonary" base="/custom/docs" home="documentation" />)
+    expect(screen.getByRole('link', { name: 'Back to documentation' })).toHaveAttribute('href', '/custom/docs/')
+    expect(screen.getByRole('link', { name: 'Return to documentation' })).toHaveAttribute('href', '/custom/docs/')
+  })
   it('explains unsupported file APIs', () => {
     vi.stubGlobal('showOpenFilePicker', undefined)
     render(<EditorApp siteName="Acme" />)

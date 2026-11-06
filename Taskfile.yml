@@ -150,9 +150,10 @@ tasks:
       - npm --prefix docs-site test
 
   docs:build:
-    desc: Build the Starlight docs and published schemas for GitHub Pages
+    desc: Build the Starlight docs, standalone editor, and published schemas for GitHub Pages
     cmds:
       - task: docs:deps
+      - task: ui:deps
       - npm --prefix docs-site run build
 
   docs:preview:

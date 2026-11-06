@@ -6,7 +6,7 @@ editUrl: https://github.com/alampros/jargonary/edit/main/docs/dictionary-format.
 Each source supplies a complete glossary in JSON or YAML. Entries with matching names or IDs in different sources remain distinct.
 
 :::tip[Glossary editor]
-Try the [Glossary Editor](https://alampros.github.io/jargonary/editor) to create or edit glossary files entirely in your browser. Files stay on your device.
+Try the [Glossary Editor](/editor/) to create or edit glossary files entirely in your browser. Files stay on your device.
 :::
 
 ## Create a Glossary

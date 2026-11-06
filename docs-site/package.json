@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1",
-    "build": "astro check && NODE_ENV=production astro build",
+    "build": "astro check && NODE_ENV=production astro build && node build-editor.mjs",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1",
     "test": "node --test *.test.mjs"
   },

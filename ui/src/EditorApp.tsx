@@ -189,7 +189,14 @@ const plugins = () => [
   }),
 ]
 
-export default function EditorApp({ base = '' }: { siteName: string; base?: string }) {
+export default function EditorApp({
+  base = '',
+  home = 'glossary',
+}: {
+  siteName: string
+  base?: string
+  home?: 'glossary' | 'documentation'
+}) {
   const supported = window.isSecureContext && typeof (window as FilePickerWindow).showOpenFilePicker === 'function'
   const [document, setDocument] = useState<EditorDocument | null>(null)
   const [raw, setRaw] = useState('')
@@ -521,7 +528,7 @@ export default function EditorApp({ base = '' }: { siteName: string; base?: stri
     >
       <header className="editor-appbar">
         <div className="editor-app-identity">
-          <a className="editor-back" href={`${base}/`} aria-label="Back to glossary" title="Back to glossary">
+          <a className="editor-back" href={`${base}/`} aria-label={`Back to ${home}`} title={`Back to ${home}`}>
             <ArrowLeftIcon size={18} aria-hidden />
           </a>
           <BookOpenIcon className="editor-brand-icon" size={23} aria-hidden />
@@ -586,7 +593,7 @@ export default function EditorApp({ base = '' }: { siteName: string; base?: stri
             or Edge.
           </p>
           <a href={`${base}/`}>
-            Return to glossary <ArrowSquareOutIcon size={14} aria-hidden />
+            Return to {home} <ArrowSquareOutIcon size={14} aria-hidden />
           </a>
         </section>
       ) : !document ? (

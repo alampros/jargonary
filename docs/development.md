@@ -25,7 +25,7 @@ When changing glossary or configuration types, regenerate and commit the schemas
 
 The docs build substitutes the manifest version, including the `v` prefix, into version placeholders even inside code blocks. README and runnable examples need real version URLs; release-please updates those in its PR.
 
-Preview docs with `go tool task docs:preview` at `http://127.0.0.1:4321/jargonary/`. Set `PAGES_BASE_URL` to test a different deployment base path.
+Preview docs with `go tool task docs:preview` at `http://127.0.0.1:4321/jargonary/`. The build also exports the standalone glossary editor at `http://127.0.0.1:4321/jargonary/editor/`, using the same editor and validation as the Go application. It needs no Go server or API; glossary files stay on your device. Use Chrome or Edge on HTTPS or localhost for local file access. Set `PAGES_BASE_URL` to test a different deployment base path.
 
 ## Part-of-speech values in Go
 

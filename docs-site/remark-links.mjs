@@ -14,6 +14,7 @@ export function siteLink(url, base) {
   if (pathname.startsWith('/docs-site/public/')) {
     return `${prefix}${pathname.slice('/docs-site/public'.length)}${suffix}`
   }
+  if (pathname === '/editor' || pathname === '/editor/') return `${prefix}/editor/${suffix}`
   if (pathname.startsWith('/schema/')) return `${prefix}${pathname}${suffix}`
   const repoPath = pathname.slice(1)
   const kind = path.posix.extname(repoPath) ? 'blob' : 'tree'

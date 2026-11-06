@@ -33,10 +33,14 @@ jobs:
         with:
           node-version: 26
           cache: npm
-          cache-dependency-path: docs-site/package-lock.json
+          cache-dependency-path: |
+            docs-site/package-lock.json
+            ui/package-lock.json
       - name: Install documentation dependencies
         run: npm --prefix docs-site ci --no-audit --no-fund
-      - name: Build site and schemas
+      - name: Install editor dependencies
+        run: npm --prefix ui ci --no-audit --no-fund
+      - name: Build site, editor, and schemas
         env:
           PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
         run: npm --prefix docs-site run build
