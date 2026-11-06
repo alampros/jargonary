@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://alampros.github.io/jargonary/schema/v0.0.0/glossary.schema.json
+version: "1"
+name: Example company
+entries:
+  - id: component
+    term: Component
+    pronunciation: kuhm-POH-nuhnt
+    aliases:
+      - text: Asset component
+        sense: asset
+    senses:
+      - id: asset
+        partOfSpeech: noun
+        definition: A constituent part of an asset system.
+        context: Asset management
+        tags: [public]
+      - id: web
+        partOfSpeech: noun
+        definition: A reusable web interface element.
+        context: Frontend engineering
+        tags: [engineering]
+  - id: payment-intent
+    term: Payment Intent
+    senses:
+      - id: payment-attempt
+        partOfSpeech: noun
+        definition: A record tracking a customer's attempt to pay.
+        tags: [public]
+  - id: pi
+    term: PI
+    senses:
+      - id: payments
+        partOfSpeech: noun
+        definition: Short for Payment Intent in the payments API.
+        tags: [public]
+        relationships:
+          - type: abbreviationOf
+            target:
+              entry: payment-intent
+              sense: payment-attempt
+  - id: payment-request
+    term: Payment Request
+    senses:
+      - id: old-api-name
+        partOfSpeech: noun
+        definition: The former name for a Payment Intent.
+        tags: [public]
+        relationships:
+          - type: deprecatedFor
+            target:
+              entry: payment-intent
+              sense: payment-attempt

@@ -1,0 +1,60 @@
+name: Publish Pages
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Checked commit or release tag to publish
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    name: Build Pages site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6.0.0
+        id: pages
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Install documentation dependencies
+        run: npm --prefix docs-site ci --no-audit --no-fund
+      - name: Build site and schemas
+        env:
+          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: npm --prefix docs-site run build
+      - name: Upload Pages site
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: .cache/pages
+  deploy:
+    name: Deploy Pages site
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages site
+        uses: actions/deploy-pages@v5.0.1
+        id: deployment

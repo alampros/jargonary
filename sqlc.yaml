@@ -1,0 +1,16 @@
+version: '2'
+sql:
+  - engine: sqlite
+    schema:
+      - internal/store/migrations/*.sql
+    queries: internal/store/sql/queries.sql
+    gen:
+      go:
+        package: storedb
+        out: internal/store/storedb
+        emit_empty_slices: true
+        overrides:
+          - column: nodes.part_of_speech
+            go_type:
+              import: jargonary/internal/vocabulary
+              type: PartOfSpeech

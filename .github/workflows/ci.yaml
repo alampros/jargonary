@@ -1,0 +1,151 @@
+name: Check
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ""
+  pull_request:
+  push:
+    branches: ['main']
+permissions:
+  contents: read
+jobs:
+  decision:
+    name: Select checks
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.filter.outputs.run }}
+    steps:
+      - name: Skip release PRs and merges
+        id: filter
+        env:
+          RUN_CHECKS: >-
+            ${{ !((github.event_name == 'pull_request' &&
+              startsWith(github.head_ref, 'release-please--branches--') &&
+              github.event.pull_request.head.repo.full_name == github.repository) ||
+              (github.event_name == 'push' && github.ref == 'refs/heads/main' && !inputs.ref &&
+              (contains(github.event.head_commit.message, 'release-please--branches--') ||
+              startsWith(github.event.head_commit.message, 'chore(main): release ')))) }}
+        run: echo "run=$RUN_CHECKS" >> "$GITHUB_OUTPUT"
+  lint-go:
+    needs: decision
+    if: needs.decision.outputs.run == 'true'
+    name: Go lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Check Go formatting and vet
+        run: go tool task go:lint
+  lint-web:
+    needs: decision
+    if: needs.decision.outputs.run == 'true'
+    name: Frontend lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - name: Set up Biome
+        uses: biomejs/setup-biome@v2.7.1
+        with:
+          working-dir: ui
+      - name: Check frontend formatting and lint
+        run: biome check --error-on-warnings ../biome.json ../internal/themes .
+        working-directory: ui
+      - name: Check documentation formatting and lint
+        run: biome check --error-on-warnings docs-site
+  go:
+    needs: decision
+    if: needs.decision.outputs.run == 'true'
+    name: Tests and validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - name: Build frontend
+        run: go tool task ui:build
+      - name: Check TypeScript
+        run: npm --prefix ui run typecheck
+      - name: Install test browser
+        run: npm --prefix ui exec -- playwright install chromium
+      - name: Run Go and frontend tests
+        run: go tool task test
+      - name: Validate release configuration
+        uses: goreleaser/goreleaser-action@v7.3.0
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: check
+      - name: Check generated schema
+        run: |
+          version="v$(jq -er '.["."] | strings | select(length > 0)' .release-please-manifest.json)"
+          go tool task schema VERSION="$version"
+          git diff --exit-code -- docs-site/public/schema/
+      - name: Validate project glossary
+        run: go run ./cmd/jargonary -validate glossary/project.json
+      - name: Validate example glossaries
+        run: |
+          for glossary in examples/terms/*.yaml; do
+            go run ./cmd/jargonary -validate "$glossary" -format yaml
+          done
+  container:
+    needs: decision
+    if: needs.decision.outputs.run == 'true'
+    name: Container smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.4.1
+      - name: Build test image
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          push: false
+          load: true
+          tags: glossary:test
+      - name: Verify container endpoints
+        run: |
+          docker run --rm glossary:test -schema -schema-version v0.0.0 > /tmp/schema.json
+          jq . /tmp/schema.json > /dev/null
+          docker run -d --name glossary -p 127.0.0.1:8080:8080 glossary:test
+          trap 'docker logs glossary; docker rm -f glossary' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/readyz; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/.well-known/glossary > /tmp/glossary.json
+          jq -e '.entries | length > 0' /tmp/glossary.json > /dev/null
+          curl -fsS http://127.0.0.1:8080/ > /tmp/home.html
+          grep -q '<h1>Shared glossary</h1>' /tmp/home.html
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/api/v1/config)" = 404

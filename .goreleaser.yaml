@@ -1,0 +1,33 @@
+version: 2
+project_name: jargonary
+builds:
+  - main: ./cmd/jargonary
+    binary: jargonary
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+archives:
+  - formats: [tar.gz]
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    files:
+      - README.md
+      - examples/config.yaml
+      - examples/terms/*.yaml
+checksum:
+  name_template: checksums.txt
+release:
+  draft: false
+  replace_existing_artifacts: true
+  mode: keep-existing
+  prerelease: auto
+changelog:
+  disable: true

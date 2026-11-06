@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://alampros.github.io/jargonary/schema/v0.0.0/config.schema.json
+site_name: Jargonary
+theme: default
+# Local files, relative to this config (loaded in order; restart after edits).
+# custom_css: [branding/colors.css, branding/layout.css]
+# custom_js: [branding/hooks.js]
+# Hide the bundled project source when company sources exist (default: false).
+# With zero configured/discovered company sources, it remains as a fallback.
+hide_jargonary_glossary: false
+server:
+  listen: 0.0.0.0:8080
+admin:
+  enabled: false
+  listen: 127.0.0.1:9090
+# Read-only MCP server for AI agents (disabled by default). Exposes glossary
+# search and lookup tools over Streamable HTTP on a private interface.
+# mcp:
+#   enabled: true
+#   listen: 127.0.0.1:9091
+# In-memory by default; cached snapshots are lost on restart.
+# To persist them, set a database path on writable storage instead.
+# database: ../data/glossary.db
+# Discover company.yaml, web-development.yaml, and engineering.yaml at startup.
+# The team glossaries define API, Component, Pipeline, and Port in different contexts.
+terms_dir: terms
+public_url: http://localhost:8080
+scrape_interval: 5m
+timeout: 15s
+max_bytes: 8388608
+
+# Explicit sources replace startup directory discovery. File/secret paths are
+# relative to this config file. Settings and secret references resolve at startup.
+# sources:
+#   - id: payments
+#     url: https://payments.internal/.well-known/glossary
+#     auth:
+#       shared_secret:
+#         env: PAYMENTS_SECRET
+
+# No export exists unless configured. Source IDs and authored content selected
+# here must be suitable for the audience. Use random shared secrets, >=32 chars.
+# exports:
+#   - id: public
+#     name: Public company glossary
+#     include:
+#       sources: [company]
+#       sense_tags:
+#         any: [public]
+#     auth:
+#       shared_secret:
+#         env: PUBLIC_EXPORT_SECRET

@@ -1,0 +1,13 @@
+.git
+.cache
+data
+bin
+*.db
+*.db-shm
+*.db-wal
+.env
+ui/node_modules
+docs-site/node_modules
+docs-site/.astro
+internal/webui/dist
+docs/design

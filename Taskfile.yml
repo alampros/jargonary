@@ -1,0 +1,152 @@
+version: '3'
+
+tasks:
+
+  # ── Entry points ─────────────────────────────────────────────────────────
+  default:
+    desc: Show project tasks
+    cmds:
+      - go tool task --list
+
+  check:
+    desc: Required completion gate (Go fmt/vet/race tests, Biome, TypeScript, Vitest)
+    cmds:
+      - task: ui:deps
+      - task: go:lint
+      - npm --prefix ui run check
+      - ui/node_modules/.bin/biome check --error-on-warnings docs-site
+      - task: docs:test
+      - go test -race ./...
+
+  # ── Common operations ────────────────────────────────────────────────────
+  test:
+    desc: Run Go race tests, Vitest unit tests, and Storybook browser tests
+    cmds:
+      - task: ui:deps
+      - npm --prefix ui run test
+      - task: docs:test
+      - go test -race ./...
+
+  fmt:
+    desc: Format Go and apply safe Biome fixes
+    cmds:
+      - task: ui:deps
+      - go fmt ./...
+      - npm --prefix ui run format
+
+  build:
+    desc: Build the UI and application binary
+    cmds:
+      - task: ui:build
+      - go build -trimpath -o bin/jargonary ./cmd/jargonary
+
+  run:
+    desc: Build the UI and run with the example configuration
+    cmds:
+      - task: ui:build
+      - go run ./cmd/jargonary -config examples/config.yaml {{.CLI_ARGS}}
+
+  schema:
+    desc: Generate JSON Schemas (requires VERSION, e.g. VERSION=v0.0.0)
+    requires:
+      vars: [VERSION]
+    env:
+      SCHEMA_VERSION: '{{.VERSION}}'
+    cmds:
+      - mkdir -p "docs-site/public/schema/$SCHEMA_VERSION"
+      - go run ./cmd/jargonary -schema -schema-version "$SCHEMA_VERSION" > "docs-site/public/schema/$SCHEMA_VERSION/glossary.schema.json"
+      - go run ./cmd/jargonary -config-schema -schema-version "$SCHEMA_VERSION" > "docs-site/public/schema/$SCHEMA_VERSION/config.schema.json"
+
+  # ── Development ──────────────────────────────────────────────────────────
+  dev:
+    desc: Run Go with Air and Vite with React HMR in parallel
+    cmds:
+      - task: ui:deps
+      - go tool task --parallel --failfast dev:server ui:dev -- {{.CLI_ARGS}}
+
+  dev:server:
+    desc: Run Go with Air and development UI integration
+    cmds:
+      - go tool air -c .air.toml -- {{.CLI_ARGS}}
+
+  # ── Go ───────────────────────────────────────────────────────────────────
+  go:lint:
+    desc: Check Go formatting and run Go static analysis
+    cmds:
+      - task: go:fmt-check
+      - go vet ./...
+
+  go:fmt-check:
+    internal: true
+    cmds:
+      - |
+        formatted="$(go fmt ./...)"
+        if [ -n "$formatted" ]; then
+          printf '%s\n' "$formatted"
+          printf '%s\n' 'go fmt changed these packages. Review the changes and rerun go tool task check.' >&2
+          exit 1
+        fi
+
+  go:sql:
+    desc: Regenerate typed SQLite queries with the pinned sqlc tool
+    cmds:
+      - go tool sqlc generate
+
+  # ── UI ───────────────────────────────────────────────────────────────────
+  ui:build:
+    desc: Build the React UI for embedding in Go
+    cmds:
+      - task: ui:deps
+      - npm --prefix ui run build
+
+  ui:dev:
+    desc: Run the Vite development server on loopback port 5173
+    cmds:
+      - npm --prefix ui run dev
+
+  ui:storybook:
+    desc: Start Storybook on loopback port 6006
+    cmds:
+      - task: ui:deps
+      - npm --prefix ui run storybook -- --host 127.0.0.1 {{.CLI_ARGS}}
+
+  ui:deps:
+    internal: true
+    desc: Install locked project-local UI dependencies
+    sources:
+      - ui/package.json
+      - ui/package-lock.json
+    generates:
+      - ui/node_modules/.package-lock.json
+    cmds:
+      - npm --prefix ui ci --no-audit --no-fund
+
+  # ── Pages ────────────────────────────────────────────────────────────────
+  docs:test:
+    desc: Test Markdown version substitution
+    cmds:
+      - task: docs:deps
+      - npm --prefix docs-site test
+
+  docs:build:
+    desc: Build the Starlight docs and published schemas for GitHub Pages
+    cmds:
+      - task: docs:deps
+      - npm --prefix docs-site run build
+
+  docs:preview:
+    desc: Serve the built Pages artifact on loopback port 4321
+    cmds:
+      - task: docs:build
+      - npm --prefix docs-site run preview -- --port 4321
+
+  docs:deps:
+    internal: true
+    desc: Install locked site dependencies
+    sources:
+      - docs-site/package.json
+      - docs-site/package-lock.json
+    generates:
+      - docs-site/node_modules/.package-lock.json
+    cmds:
+      - npm --prefix docs-site ci --no-audit --no-fund
