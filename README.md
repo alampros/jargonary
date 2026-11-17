@@ -34,6 +34,8 @@ Sources are polled; failed fetches retain the last accepted content. `/.well-kno
 
 See the [format guide](docs/dictionary-format.md), [schema](docs-site/public/schema/v0.2.0/glossary.schema.json), and [examples](examples/terms/). Named [exports](docs/publishing.md) share selected content; read-only [MCP](docs/mcp.md) tools expose it to AI clients.
 
+To generate a glossary from your project's documentation and code, point your LLM to the [glossary generation skill](skills/generate-jargonary-glossary/SKILL.md).
+
 [Documentation](https://alampros.github.io/jargonary/) covers [deployment](docs/reference.md), [branding](docs/customization.md), and [development](docs/development.md).
 
 ## Develop

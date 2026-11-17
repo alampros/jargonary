@@ -32,6 +32,19 @@ entries:
 
 JSON uses the same structure as YAML. An entry groups a term's meanings under one owner; use separate sources for independent owners. `context` is descriptive text; use `tags` for export selection.
 
+### Generate a glossary with an LLM
+
+Project owners can point an LLM at the [glossary generation skill](https://github.com/alampros/jargonary/blob/main/skills/generate-jargonary-glossary/SKILL.md) along with their project's documentation or repository. For example:
+
+```text
+Read https://raw.githubusercontent.com/alampros/jargonary/main/skills/generate-jargonary-glossary/SKILL.md
+and follow it to create glossary.yaml for this project. Use the README,
+docs, and domain models as evidence. Write for new contributors, preserve
+any existing glossary IDs, and flag uncertain meanings for my review.
+```
+
+The skill covers JSON/YAML structure, distinct meanings, aliases, relationships, and validation. Review the generated definitions before connecting the file as a source; the project owner remains responsible for content approval.
+
 ## Define JSON and YAML Fields
 
 ### Glossary Fields
