@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/alampros/jargonary/compare/v0.5.0...v0.6.0) (2026-11-17)
+
+
+### Features
+
+* add version command ([4b287c2](https://github.com/alampros/jargonary/commit/4b287c26cd8ac84df0fe1c4fc823cbc082345ab7))
+
 ## [0.5.0](https://github.com/alampros/jargonary/compare/v0.4.1...v0.5.0) (2026-11-17)
 
 
