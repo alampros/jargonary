@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/alampros/jargonary/compare/v0.4.1...v0.5.0) (2026-11-17)
+
+
+### Features
+
+* detect content type of extensionless glossaries ([219b7a6](https://github.com/alampros/jargonary/commit/219b7a6e9db80027381b6f215f1008e8aac0db11))
+* support git sources ([efedc19](https://github.com/alampros/jargonary/commit/efedc196893fef82c3410e278c58e24b825ed0c1))
+
+
+### Bug Fixes
+
+* only include project jargon when no sources defined ([13e01ba](https://github.com/alampros/jargonary/commit/13e01bab855333ee8278ac0c2e93555f5794533c))
+
 ## [0.4.1](https://github.com/alampros/jargonary/compare/v0.4.0...v0.4.1) (2026-11-17)
 
 
