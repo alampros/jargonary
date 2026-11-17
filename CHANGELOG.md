@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/alampros/jargonary/compare/v0.2.1...v0.3.0) (2026-11-17)
+
+
+### Features
+
+* Add stdin support for glossary validation and serving ([ed14a43](https://github.com/alampros/jargonary/commit/ed14a436ab8ea3669bfd2235ebf802f3a360fdc8))
+* find glossary files in cwd ([d471447](https://github.com/alampros/jargonary/commit/d471447f6c5cf6ab0e2fe218fd38380c645c4200))
+* quickly serve single glossary files ([12cb7a1](https://github.com/alampros/jargonary/commit/12cb7a1d83a9135a11d137d386a4ae68ac60b087))
+
 ## [0.2.1](https://github.com/alampros/jargonary/compare/v0.2.0...v0.2.1) (2026-11-17)
 
 
