@@ -521,12 +521,12 @@ func (s *Server) renderShell(w http.ResponseWriter, r *http.Request, data any, t
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' http://127.0.0.1:5173; style-src 'self' 'unsafe-inline' http://127.0.0.1:5173; font-src 'self' http://127.0.0.1:5173; img-src 'self' data: http://127.0.0.1:5173; connect-src 'self' http://127.0.0.1:5173 ws://127.0.0.1:5173; frame-ancestors 'none'; base-uri 'none'")
 	}
 	if err != nil {
-		// Plain definition HTML remains readable in API-only builds. A missing web
+		// Plain definition HTML remains readable in source builds. A missing web
 		// build is explicit on the homepage rather than silently returning a 404.
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if r.URL.Path == "/" {
 			w.WriteHeader(503)
-			_, _ = w.Write([]byte("<!doctype html><html lang=\"en\"><title>Frontend build required</title><h1>Frontend build required</h1><p>Run <code>go tool task ui</code>, then restart the Go server.</p></html>"))
+			_, _ = w.Write([]byte(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Web UI unavailable</title></head><body><h1>Web UI unavailable</h1><p>This binary was built without the web UI. Installation with <code>go install</code> is unsupported.</p><p>On macOS, install the bundled binary with <code>brew install --cask alampros/tap/jargonary</code>, or download a <a href="https://github.com/alampros/jargonary/releases">release binary</a> for your platform.</p><p>When building from source, run <code>go tool task build</code> from the repository root and use <code>bin/jargonary</code>.</p></body></html>`))
 			return
 		}
 		var head bytes.Buffer

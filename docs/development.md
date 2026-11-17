@@ -19,6 +19,14 @@ npm --prefix ui exec -- playwright install chromium
 
 See [Taskfile.yml](../Taskfile.yml) for other commands and [AGENTS.md](../AGENTS.md) for contribution rules.
 
+## Binary distribution
+
+`go install` is unsupported because it does not build the bundled React UI. Use the Homebrew cask on macOS, a release binary, or a container. To build locally, run `go tool task build` and use `bin/jargonary`.
+
+Stable releases publish the macOS cask to [alampros/homebrew-tap](https://github.com/alampros/homebrew-tap) through GoReleaser after building the UI. Both Apple Silicon and Intel archives use their release checksums. Prereleases do not update the cask.
+
+The release workflow uses `RELEASE_TOKEN` for the tap update; grant it `contents:write` access to `alampros/homebrew-tap` as well as its existing release-please permissions on this repository. The default workflow token cannot write to the separate tap. The cask removes the quarantine attribute from its installed executable because the release binaries are not Apple-notarized.
+
 ## Schemas and docs
 
 When changing glossary or configuration types, regenerate and commit the schemas with `go tool task schema VERSION=__JARGONARY_VERSION__`. Preserve older version directories.

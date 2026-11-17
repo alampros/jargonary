@@ -41,13 +41,13 @@ curl -fsS https://glossary.example.com/.well-known/glossary/partners | ./jargona
 
 Replace the script and URL with your own. JSON is the default; use `-format yaml` for YAML. Serving waits for EOF, validates the input, and serves one snapshot until stopped. In Bash or Zsh, use `set -o pipefail` to also fail a pipeline when its generator or download fails. See [stdin details and Docker usage](docs/sources.md#read-from-stdin).
 
-With Go 1.27 or newer, install the CLI from the current source:
+On macOS, install the bundled binary with Homebrew:
 
 ```sh
-go install github.com/alampros/jargonary/cmd/jargonary@main
+brew install --cask alampros/tap/jargonary
 ```
 
-Add `$(go env GOPATH)/bin` to your `PATH` (or your custom `GOBIN`). Go installs support glossary validation and schema generation; the web UI requires a [release binary](https://github.com/alampros/jargonary/releases), container, or [local UI build](docs/development.md). Older release tags declare a different module path, so use `@main` until a release includes the module-path fix.
+The cask includes the web UI. `go install` is unsupported because it omits the frontend assets. For source builds, use [the development tasks](docs/development.md).
 
 ## Connect your glossaries
 

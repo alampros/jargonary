@@ -67,6 +67,20 @@ func TestDevelopmentUIMissingTemplateIsExplicit(t *testing.T) {
 	}
 }
 
+func TestMissingProductionUIExplainsSupportedInstallations(t *testing.T) {
+	s := setup(t)
+	s.Assets = fstest.MapFS{}
+	w := request(s.Public(), "/", "", "")
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatalf("missing web UI returned %d", w.Code)
+	}
+	for _, want := range []string{"go install</code> is unsupported", "brew install --cask alampros/tap/jargonary", "https://github.com/alampros/jargonary/releases", "go tool task build", "bin/jargonary"} {
+		if !strings.Contains(w.Body.String(), want) {
+			t.Errorf("missing installation guidance %q", want)
+		}
+	}
+}
+
 func TestPublicFreshnessOmitsOperatorDetails(t *testing.T) {
 	s := withPageAssets(t)
 	last := time.Now().UTC().Add(-time.Hour)

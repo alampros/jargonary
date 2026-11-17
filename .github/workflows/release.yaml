@@ -79,6 +79,14 @@ jobs:
           cache-dependency-path: ui/package-lock.json
       - name: Build frontend
         run: go tool task ui:build
+      - name: Verify Homebrew publishing token
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo 'Configure RELEASE_TOKEN with contents:write access to alampros/homebrew-tap for cask publishing.' >&2
+            exit 1
+          fi
       - name: Build and upload binaries
         uses: goreleaser/goreleaser-action@v7.3.0
         with:
@@ -87,6 +95,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ env.RELEASE_TAG }}
       - name: Stage released binaries for container images
         id: image-binaries

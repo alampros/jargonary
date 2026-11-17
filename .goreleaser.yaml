@@ -24,6 +24,25 @@ archives:
       - examples/terms/*.yaml
 checksum:
   name_template: checksums.txt
+homebrew_casks:
+  - name: jargonary
+    binaries:
+      - jargonary
+    homepage: https://github.com/alampros/jargonary
+    description: Team-owned glossaries in one searchable UI
+    skip_upload: auto
+    repository:
+      owner: alampros
+      name: homebrew-tap
+      token: '{{ .Env.RELEASE_TOKEN }}'
+    caveats: |
+      Start with: jargonary -f /path/to/glossary.yaml -format yaml
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/jargonary"]
+          end
 release:
   draft: false
   replace_existing_artifacts: true

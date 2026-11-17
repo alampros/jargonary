@@ -21,6 +21,15 @@ See the [annotated config](../examples/config.yaml) for settings and [source rul
 
 ## Binary
 
+On macOS, install the binary with its bundled web UI:
+
+```sh
+brew install --cask alampros/tap/jargonary
+jargonary -f ./glossary.yaml -format yaml
+```
+
+For other platforms, download a [release binary](https://github.com/alampros/jargonary/releases). Installation with `go install` is unsupported. To build from source, follow the [development guide](development.md).
+
 ```sh
 ./jargonary -config config.yaml
 ```
