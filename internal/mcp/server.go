@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 	mcp "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
 )
 
 // New returns a Streamable HTTP handler for MCP clients. The server is

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"jargonary/internal/themes"
+	"github.com/alampros/jargonary/internal/themes"
 )
 
 func TestAppearanceOnPublicAdminAndDevelopmentPages(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 	"sort"
 	"time"
 
-	"jargonary/internal/store/storedb"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/store/storedb"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func replaceNormalized(ctx context.Context, tx *sql.Tx, source string, d vocabulary.Dictionary) error {

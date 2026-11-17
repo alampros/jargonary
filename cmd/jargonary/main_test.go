@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"jargonary/internal/config"
-	"jargonary/internal/server"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/server"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func TestProjectGlossaryStartupTransitions(t *testing.T) {

@@ -8,7 +8,7 @@ package storedb
 import (
 	"context"
 
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 const browseNodes = `-- name: BrowseNodes :many

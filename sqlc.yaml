@@ -12,5 +12,5 @@ sql:
         overrides:
           - column: nodes.part_of_speech
             go_type:
-              import: jargonary/internal/vocabulary
+              import: github.com/alampros/jargonary/internal/vocabulary
               type: PartOfSpeech

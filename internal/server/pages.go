@@ -14,10 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/webui"
 	"github.com/go-chi/chi/v5"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
-	"jargonary/internal/webui"
 )
 
 type pageData struct {

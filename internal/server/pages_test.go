@@ -13,8 +13,8 @@ import (
 	"testing/fstest"
 	"time"
 
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func withPageAssets(t *testing.T) *Server {

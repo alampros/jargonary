@@ -16,15 +16,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alampros/jargonary/glossary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/publishing"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"jargonary/glossary"
-	"jargonary/internal/config"
-	"jargonary/internal/publishing"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
 )
 
 type Server struct {

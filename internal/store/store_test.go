@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	v "jargonary/internal/vocabulary"
+	v "github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func TestInMemorySnapshotLifecycle(t *testing.T) {

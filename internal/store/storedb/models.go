@@ -5,7 +5,7 @@
 package storedb
 
 import (
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 type Node struct {

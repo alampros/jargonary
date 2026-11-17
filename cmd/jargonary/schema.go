@@ -10,8 +10,8 @@ import (
 	"github.com/invopop/jsonschema"
 	"golang.org/x/mod/semver"
 
-	"jargonary/internal/config"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 // writeSchema keeps release and publishing metadata out of the config model.

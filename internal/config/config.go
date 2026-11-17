@@ -16,8 +16,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/alampros/jargonary/internal/vocabulary"
 	"go.yaml.in/yaml/v3"
-	"jargonary/internal/vocabulary"
 )
 
 type Duration time.Duration

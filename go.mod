@@ -1,4 +1,4 @@
-module jargonary
+module github.com/alampros/jargonary
 
 go 1.27.0
 

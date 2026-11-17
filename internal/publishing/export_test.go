@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"jargonary/internal/config"
-	"jargonary/internal/store"
-	v "jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/store"
+	v "github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func TestFilteredExportIdentityAndDeprecation(t *testing.T) {

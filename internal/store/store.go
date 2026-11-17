@@ -15,7 +15,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/vocabulary"
 	_ "modernc.org/sqlite"
 )
 

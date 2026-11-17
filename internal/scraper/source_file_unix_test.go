@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"jargonary/internal/config"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func TestFIFORejectionAndNonblockingOpen(t *testing.T) {

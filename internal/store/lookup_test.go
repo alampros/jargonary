@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	v "jargonary/internal/vocabulary"
+	v "github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func openTestStore(t *testing.T) *Store {

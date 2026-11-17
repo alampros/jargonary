@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"jargonary/internal/config"
-	"jargonary/internal/publishing"
-	"jargonary/internal/scraper"
-	"jargonary/internal/store"
-	v "jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/publishing"
+	"github.com/alampros/jargonary/internal/scraper"
+	"github.com/alampros/jargonary/internal/store"
+	v "github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func setup(t *testing.T) *Server {

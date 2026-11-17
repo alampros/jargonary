@@ -62,18 +62,14 @@ For detailed rules, consult the [format guide](https://github.com/alampros/jargo
 
 Check syntax, required fields, ID uniqueness, alias sense targets, relationship targets, and URLs. Avoid duplicate keys, unknown fields, and extra JSON/YAML documents. JSON Schema checks structure; Jargonary's validator adds semantic checks. Unresolved relationships can pass validation and still produce runtime diagnostics, so review targets explicitly.
 
-If the Jargonary binary is available, run this command with the actual output path and `json` or `yaml` format:
+Use the published Docker image to run validation; do not download a standalone binary or run `go install`. From the directory containing the generated file, run this command with the actual output path and `json` or `yaml` format:
 
 ```sh
-jargonary -validate glossary.yaml -format yaml
+docker run --rm -i ghcr.io/alampros/jargonary:0.2.0 -validate /dev/stdin -format yaml < glossary.yaml
 ```
 
-When working from the Jargonary repository with Go available, use:
+Use the owner's deployed image version when known; `0.2.0` is the example release. Image tags omit the leading `v`; do not assume a `latest` tag exists. Docker pulls the image if needed. Keep `-i` to pass the file through stdin, and do not add `-t`. This validates the complete file without mounting the project, exposing a port, or starting the server. A successful command exits with status 0; validation failures exit nonzero.
 
-```sh
-go run ./cmd/jargonary -validate glossary.yaml -format yaml
-```
-
-Fix reported errors and rerun validation. If the validator is unavailable, report that limitation and provide the exact command the owner can run; do not claim validation passed or install system software.
+Fix reported errors and rerun validation. If Docker is missing, its daemon is unavailable, or the image cannot be pulled, report the concrete blocker and provide the exact command the owner can run. Do not claim validation passed, install system software, or switch to downloading a binary.
 
 Return the file path, a brief coverage summary, validation results, and any questions needing owner review. If file writing is unavailable, return one complete JSON or YAML code block suitable for saving, with review notes outside it. Creating a file does not publish it: leave source configuration and deployment to the owner unless requested.

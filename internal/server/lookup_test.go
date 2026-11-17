@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 // The previous resolver remains a test oracle and benchmark baseline only.

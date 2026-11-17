@@ -12,7 +12,7 @@ import (
 	charmlog "charm.land/log/v2"
 	"github.com/charmbracelet/colorprofile"
 
-	"jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/config"
 )
 
 // newLogger uses Charm's slog handler for both terminal text and JSON lines.

@@ -4,7 +4,7 @@ import (
 	"github.com/invopop/jsonschema"
 	orderedmap "github.com/pb33f/ordered-map/v2"
 
-	"jargonary/internal/themes"
+	"github.com/alampros/jargonary/internal/themes"
 )
 
 // Schema describes authored YAML configuration, rather than the redacted JSON

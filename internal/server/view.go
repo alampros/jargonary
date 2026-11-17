@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"sort"
 
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 type Hyperlink struct {

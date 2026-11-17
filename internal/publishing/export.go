@@ -7,9 +7,9 @@ import (
 	"errors"
 	"slices"
 
-	"jargonary/internal/config"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 // ExportID hashes an unambiguous (source, entry) pair. Display names and consumer source IDs do not affect it.

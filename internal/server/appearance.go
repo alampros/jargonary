@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"jargonary/internal/themes"
+	"github.com/alampros/jargonary/internal/themes"
 )
 
 func (s *Server) appearanceAsset(w http.ResponseWriter, r *http.Request, name string) bool {

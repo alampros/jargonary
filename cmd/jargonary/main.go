@@ -15,13 +15,13 @@ import (
 
 	"golang.org/x/term"
 
-	"jargonary/glossary"
-	"jargonary/internal/config"
-	"jargonary/internal/mcp"
-	"jargonary/internal/scraper"
-	"jargonary/internal/server"
-	"jargonary/internal/store"
-	"jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/glossary"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/mcp"
+	"github.com/alampros/jargonary/internal/scraper"
+	"github.com/alampros/jargonary/internal/server"
+	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func main() {

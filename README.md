@@ -20,6 +20,14 @@ Or download a [release binary](https://github.com/alampros/jargonary/releases):
 ./jargonary -config examples/config.yaml
 ```
 
+With Go 1.27 or newer, install the CLI from the current source:
+
+```sh
+go install github.com/alampros/jargonary/cmd/jargonary@main
+```
+
+Add `$(go env GOPATH)/bin` to your `PATH` (or your custom `GOBIN`). Go installs support glossary validation and schema generation; the web UI requires a [release binary](https://github.com/alampros/jargonary/releases), container, or [local UI build](docs/development.md). Older release tags declare a different module path, so use `@main` until a release includes the module-path fix.
+
 ## Connect your glossaries
 
 ```yaml

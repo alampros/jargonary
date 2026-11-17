@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"jargonary/internal/config"
-	"jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/store"
 )
 
 func TestLastSuccessRetentionAndExplicitRemoval(t *testing.T) {

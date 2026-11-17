@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"jargonary/internal/store"
-	v "jargonary/internal/vocabulary"
+	"github.com/alampros/jargonary/internal/store"
+	v "github.com/alampros/jargonary/internal/vocabulary"
 )
 
 func setup(t *testing.T) http.Handler {

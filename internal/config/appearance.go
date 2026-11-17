@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"jargonary/internal/themes"
+	"github.com/alampros/jargonary/internal/themes"
 )
 
 func (c *Config) resolveAppearance(configPath string) error {

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"jargonary/internal/config"
+	"github.com/alampros/jargonary/internal/config"
 )
 
 func TestLogResolvedConfiguration(t *testing.T) {
