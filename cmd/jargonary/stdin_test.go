@@ -79,7 +79,7 @@ func TestServeStdinCLI(t *testing.T) {
 			if format == "yaml" {
 				body = "version: '1'\nname: Piped\nentries:\n  - id: pipe\n    term: Pipe\n    senses:\n      - id: one\n        definition: From stdin.\n"
 			}
-			cmd := cliProcess(t, "-config", path, "-f", "-", "-format", format)
+			cmd := cliProcess(t, "-config", path, "-f", "-")
 			cmd.Stdin = strings.NewReader(body)
 			cmd.Stderr = os.Stderr
 			stdout, err := cmd.StdoutPipe()

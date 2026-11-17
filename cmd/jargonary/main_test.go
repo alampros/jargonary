@@ -24,6 +24,7 @@ func TestReadGlossaryInput(t *testing.T) {
 		wantErr            bool
 	}{
 		{name: "default JSON", body: json},
+		{name: "auto-detect YAML", body: yaml},
 		{name: "explicit JSON", body: json, format: "json"},
 		{name: "YAML", body: yaml, format: "yaml"},
 		{name: "exact size limit", body: json, limit: int64(len(json))},

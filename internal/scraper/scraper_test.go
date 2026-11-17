@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -15,6 +16,60 @@ import (
 	"github.com/alampros/jargonary/internal/store"
 	"github.com/alampros/jargonary/internal/vocabulary"
 )
+
+func TestExtensionlessHTTPFormatDetection(t *testing.T) {
+	const jsonBody = `{"version":"1","name":"Example","entries":[]}`
+	const yamlBody = "# Published glossary\n---\nversion: '1'\nname: Example\nentries: []\n"
+	for _, tc := range []struct {
+		name, path, format, body string
+		wantErr                  bool
+	}{
+		{name: "JSON", path: "/.well-known/glossary", body: " \n" + jsonBody},
+		{name: "YAML", path: "/.well-known/glossary", body: yamlBody},
+		{name: "named export with query", path: "/.well-known/glossary/team?version=1.json", body: yamlBody},
+		{name: "explicit JSON", path: "/.well-known/glossary", format: "json", body: yamlBody, wantErr: true},
+		{name: "JSON extension", path: "/glossary.json", body: yamlBody, wantErr: true},
+		{name: "YAML extension", path: "/glossary.yaml", body: yamlBody},
+		{name: "duplicate JSON fields", path: "/.well-known/glossary", body: `{"version":"1","name":"Old","name":"Example","entries":[]}`, wantErr: true},
+		{name: "malformed JSON", path: "/.well-known/glossary", body: "{version: '1', name: Example, entries: []}", wantErr: true},
+		{name: "explicit flow YAML", path: "/.well-known/glossary", format: "yaml", body: "{version: '1', name: Example, entries: []}"},
+		{name: "multiple YAML documents", path: "/.well-known/glossary", body: yamlBody + "---\n" + yamlBody, wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Detection uses content even when a server labels YAML as JSON.
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer ts.Close()
+			path := filepath.Join(t.TempDir(), "config.yaml")
+			settings := "sources:\n  - id: example\n    url: " + ts.URL + tc.path + "\n    format: '" + tc.format + "'\n"
+			if err := os.WriteFile(path, []byte(settings), 0600); err != nil {
+				t.Fatal(err)
+			}
+			c, err := config.Load(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			st, err := store.Open(":memory:")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer st.Close()
+			status := New(c, st).Once(context.Background(), c.Sources[0], store.Status{})
+			if (status.Failures != 0) != tc.wantErr {
+				t.Fatalf("unexpected scrape status: %+v", status)
+			}
+			snapshots, err := st.Snapshots(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !tc.wantErr && (len(snapshots) != 1 || snapshots[0].Dictionary.Name != "Example") {
+				t.Fatalf("unexpected snapshots: %+v", snapshots)
+			}
+		})
+	}
+}
 
 func TestRunPreservesStdinSnapshot(t *testing.T) {
 	ctx := context.Background()

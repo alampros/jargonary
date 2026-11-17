@@ -353,11 +353,8 @@ func (c *Config) Validate() error {
 				location = u.Path
 			}
 			s.Format = strings.TrimPrefix(strings.ToLower(filepath.Ext(location)), ".")
-			if s.Format == "" {
-				s.Format = "json"
-			}
 		}
-		if s.Format != "json" && s.Format != "yaml" && s.Format != "yml" {
+		if s.Format != "" && s.Format != "json" && s.Format != "yaml" && s.Format != "yml" {
 			return errors.New("unsupported source format")
 		}
 		if s.ScrapeInterval == 0 {

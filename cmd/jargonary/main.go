@@ -40,7 +40,7 @@ func run() error {
 	flag.StringVar(&inputFile, "f", "", "alias for -input-file")
 	devUI := flag.Bool("dev-ui", false, "load frontend modules from local Vite (run from repository root)")
 	validate := flag.String("validate", "", "validate a glossary file (- for stdin) and exit")
-	format := flag.String("format", "", "glossary format for -validate or -input-file: json, yaml (default JSON; input files infer from extension)")
+	format := flag.String("format", "", "glossary format for -validate or -input-file: json, yaml (default auto-detect; input files infer from extension)")
 	schema := flag.Bool("schema", false, "print the structural dictionary JSON Schema and exit")
 	configSchema := flag.Bool("config-schema", false, "print the configuration JSON Schema and exit")
 	schemaVersion := flag.String("schema-version", "", "release version for schema generation (required with -schema or -config-schema)")
@@ -184,9 +184,6 @@ func readGlossaryInput(path, format string, stdin io.Reader, maxBytes int64) (vo
 	}
 	if maxBytes > 0 && int64(len(b)) > maxBytes {
 		return empty, errors.New("glossary input exceeds max_bytes")
-	}
-	if format == "" {
-		format = "json"
 	}
 	return vocabulary.Parse(b, format)
 }

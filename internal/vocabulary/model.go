@@ -95,11 +95,20 @@ func Deprecated(flag bool, relationships []Relationship) bool {
 	return false
 }
 
+// Parse detects JSON or YAML from the content when format is empty. Input
+// beginning with an object or array uses strict JSON without a YAML fallback.
 func Parse(data []byte, format string) (Dictionary, error) {
+	if format == "" {
+		format = "yaml"
+		trimmed := bytes.TrimSpace(data)
+		if len(trimmed) > 0 && (trimmed[0] == '{' || trimmed[0] == '[') {
+			format = "json"
+		}
+	}
 	var d Dictionary
 	var err error
 	switch strings.ToLower(format) {
-	case "json", "":
+	case "json":
 		if err := checkJSON(bytes.NewReader(data)); err != nil {
 			return Dictionary{}, errors.New("invalid JSON: duplicate fields, excessive nesting, or malformed document")
 		}

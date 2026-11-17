@@ -57,8 +57,8 @@ func TestInputFile(t *testing.T) {
 		{name: "relative YAML", source: "terms/team.yaml", format: "yaml"},
 		{name: "absolute JSON", source: "/tmp/team.json", format: "json"},
 		{name: "YML", source: "team.YML", format: "yml"},
-		{name: "extensionless JSON", source: "glossary", format: "json"},
-		{name: "stdin", source: "-", format: "json"},
+		{name: "extensionless auto-detect", source: "glossary"},
+		{name: "stdin", source: "-"},
 		{name: "unsupported format", source: "team.csv", wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
