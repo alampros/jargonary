@@ -38,6 +38,13 @@ max_bytes: 8388608
 #       shared_secret:
 #         env: PAYMENTS_SECRET
 
+# Git sources use the external git executable for authentication and routing.
+# Add to sources above (default path: glossary.yaml; default ref: remote HEAD):
+#   - id: jargonary-repo
+#     git: alampros/jargonary  # Or any fully qualified Git URI.
+#     path: glossary/project.json
+#     ref: main
+
 # No export exists unless configured. Source IDs and authored content selected
 # here must be suitable for the audience. Use random shared secrets, >=32 chars.
 # exports:

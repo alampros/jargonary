@@ -14,7 +14,7 @@ See the [annotated config](../examples/config.yaml) for all settings.
 
 `-f` and `-input-file` accept a single local glossary file, replace configured sources and discovery, and hide the bundled project glossary. The source ID is `glossary`. Format is inferred from the file extension, defaulting to JSON; `-format yaml` or `-format json` overrides it. File content is polled using the normal source rules.
 
-You can combine it with `-config` for other settings. The source file path resolves from the working directory, even when the config is elsewhere. Configured exports must reference `glossary` or omit source selectors. For HTTP(S) sources or authentication, use a configured source instead.
+You can combine it with `-config` for other settings. The source file path resolves from the working directory, even when the config is elsewhere. Configured exports must reference `glossary` or omit source selectors. For HTTP(S) or Git sources, use a configured source instead.
 
 ## Read from stdin
 
@@ -40,6 +40,29 @@ For Docker, keep stdin open with `-i` and omit `-t`:
 ```sh
 docker run --rm -i -p 8080:8080 ghcr.io/alampros/jargonary:0.2.0 -f - -format yaml < terms/payments.yaml
 ```
+
+## Git repositories
+
+```yaml
+sources:
+  - id: jargonary
+    git: alampros/jargonary
+    path: glossary/project.json
+  - id: platform
+    git: git@example.com:platform/vocabulary.git
+    path: glossary.yaml
+    ref: main
+```
+
+Choose exactly one of `file`, `url`, or `git` per source. `git` accepts GitHub shorthand (`owner/repo`, expanded to `https://github.com/owner/repo.git`) or any fully qualified repository URI understood by Git, including HTTPS, SSH, SCP-style addresses, and remote helpers. URIs are passed directly to the external `git` executable without a shell.
+
+`path` names one committed regular file relative to the repository root and defaults to `glossary.yaml`. Set it to `glossary.json` for a root JSON glossary, or a nested path as above. Symlinks and submodules are not followed. Format is inferred from this path, defaulting to JSON for extensionless paths; `format` overrides it. `ref` selects a branch, tag, or commit and defaults to the remote `HEAD`.
+
+Each poll fetches a shallow snapshot into a temporary bare repository, reads the file, and removes the temporary repository. No working tree is checked out. Changes, invalid content, empty glossaries, and failures follow the same snapshot rules as other sources. The fetch and file read share the configured `timeout`; `max_bytes` limits the glossary content, not the repository transfer.
+
+Git sources require `git` on the application's `PATH` and a writable temporary directory. Git inherits the process environment and uses its own configuration, credential helpers, SSH agent, SSH configuration, proxies, and URL rewriting. Configure authentication and routing for the user running Jargonary; `auth.shared_secret` is only for HTTP sources. Repository URIs and Git stderr are omitted from diagnostics to avoid exposing credentials.
+
+The stock scratch-based Docker images do not include Git. To use Git sources in a container, supply a runtime image with Git and any required transport programs (such as SSH), plus the appropriate Git configuration and credentials for the runtime user.
 
 ## Polling and limits
 

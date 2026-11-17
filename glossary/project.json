@@ -609,7 +609,7 @@
       "senses": [
         {
           "id": "project",
-          "definition": "An operator-configured input identified by a stable local ID, read from a file or fetched from a URL, together with its format, schedule, and access settings. Source configuration is distinct from glossary content.",
+          "definition": "An operator-configured input identified by a stable local ID, read from a local file, fetched from an HTTP endpoint, or loaded from a committed file in a Git repository, together with its format, schedule, and access settings. Source configuration is distinct from glossary content.",
           "context": "Project terminology",
           "tags": [
             "project-glossary"

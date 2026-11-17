@@ -177,6 +177,10 @@ func (s *Scraper) Once(ctx context.Context, source config.Source, st store.Statu
 }
 
 func (s *Scraper) fetch(ctx context.Context, source config.Source, previous *store.Snapshot) ([]byte, string, string, bool, error) {
+	if source.Git != "" {
+		b, err := s.fetchGit(ctx, source)
+		return b, "", "", false, err
+	}
 	var r io.ReadCloser
 	var etag, modified string
 	if source.File != "" {
@@ -250,6 +254,6 @@ func (s *Scraper) fetch(ctx context.Context, source config.Source, previous *sto
 // Validators are scoped to the target, format, and credential principal. Reusing
 // a source ID for a different resource must not validate the old representation.
 func fetchKey(s config.Source) string {
-	h := sha256.Sum256([]byte(s.URL + "\x00" + s.File + "\x00" + s.Format + "\x00" + s.Token))
+	h := sha256.Sum256([]byte(s.URL + "\x00" + s.File + "\x00" + s.Format + "\x00" + s.Token + "\x00" + s.Git + "\x00" + s.Path + "\x00" + s.Ref))
 	return hex.EncodeToString(h[:])
 }

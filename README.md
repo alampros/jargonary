@@ -57,6 +57,9 @@ sources:
     file: terms/payments.yaml
   - id: platform
     url: https://platform.internal/.well-known/glossary
+  - id: jargonary-repo
+    git: alampros/jargonary
+    path: glossary/project.json
 ```
 
 Sources are polled; failed fetches retain the last accepted content. `/.well-known/glossary` is a proposed convention, not a registered standard or automatic network discovery.

@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -53,6 +54,9 @@ type Source struct {
 	ID             string   `yaml:"id" json:"id" jsonschema:"required,pattern=^[A-Za-z0-9][A-Za-z0-9._-]*$,maxLength=200"`
 	URL            string   `yaml:"url" json:"-" jsonschema:"minLength=1,oneof_required=url"`
 	File           string   `yaml:"file" json:"file,omitempty" jsonschema:"minLength=1,oneof_required=file"`
+	Git            string   `yaml:"git" json:"-" jsonschema:"minLength=1,oneof_required=git"`
+	Path           string   `yaml:"path" json:"path,omitempty" jsonschema:"minLength=1" jsonschema_description:"Repository-relative glossary file; defaults to glossary.yaml for Git sources."`
+	Ref            string   `yaml:"ref" json:"ref,omitempty" jsonschema_description:"Git branch, tag, or commit; defaults to the remote HEAD."`
 	Format         string   `yaml:"format" json:"format" jsonschema:"enum=,enum=json,enum=yaml,enum=yml"`
 	ScrapeInterval Duration `yaml:"scrape_interval" json:"scrape_interval"`
 	Auth           Auth     `yaml:"auth" json:"auth"`
@@ -308,11 +312,39 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("source %d has an invalid, duplicate, or reserved ID", i+1)
 		}
 		ids[s.ID] = true
-		if (s.URL == "") == (s.File == "") {
-			return fmt.Errorf("source %d requires exactly one URL or file", i+1)
+		locations := 0
+		for _, location := range []string{s.URL, s.File, s.Git} {
+			if location != "" {
+				locations++
+			}
+		}
+		if locations != 1 {
+			return fmt.Errorf("source %d requires exactly one URL, file, or git repository", i+1)
+		}
+		if s.Git != "" {
+			if strings.TrimSpace(s.Git) == "" || strings.HasPrefix(s.Git, "-") || strings.ContainsAny(s.Git, "\x00\r\n") {
+				return errors.New("invalid Git repository")
+			}
+			if s.Auth.SharedSecret != nil {
+				return errors.New("Git sources use external git authentication, not shared_secret")
+			}
+			if s.Path == "" {
+				s.Path = "glossary.yaml"
+			}
+			if path.IsAbs(s.Path) || path.Clean(s.Path) != s.Path || s.Path == "." || strings.HasPrefix(s.Path, "../") || strings.ContainsAny(s.Path, "\x00\r\n\\") {
+				return errors.New("Git path must be a repository-relative file path without traversal")
+			}
+			if strings.HasPrefix(s.Ref, "-") || strings.ContainsAny(s.Ref, "\x00\r\n") {
+				return errors.New("invalid Git ref")
+			}
+		} else if s.Path != "" || s.Ref != "" {
+			return errors.New("path and ref require a Git source")
 		}
 		if s.Format == "" {
 			location := s.File
+			if s.Git != "" {
+				location = s.Path
+			}
 			if s.URL != "" {
 				u, err := url.Parse(s.URL)
 				if err != nil {
@@ -425,6 +457,9 @@ func (c Config) Diagnostics() map[string]any {
 	_ = json.Unmarshal(b, &out)
 	sources, _ := out["sources"].([]any)
 	for i, s := range c.Sources {
+		if s.Git != "" {
+			sources[i].(map[string]any)["git"] = "[redacted]"
+		}
 		if s.URL != "" {
 			u, _ := url.Parse(s.URL)
 			u.RawQuery = ""

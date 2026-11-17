@@ -437,3 +437,46 @@ func TestDiscoveryOnlyIncludesJSONAndYAML(t *testing.T) {
 		}
 	}
 }
+
+func TestGitSources(t *testing.T) {
+	for _, tc := range []struct {
+		name, fields, path, format string
+		invalid                    bool
+	}{
+		{name: "shorthand", fields: "git: alampros/jargonary", path: "glossary.yaml", format: "yaml"},
+		{name: "HTTPS", fields: "git: https://example.com/team/repo.git\n    path: glossary/project.json", path: "glossary/project.json", format: "json"},
+		{name: "SSH", fields: "git: git@example.com:team/repo.git\n    ref: main", path: "glossary.yaml", format: "yaml"},
+		{name: "custom transport", fields: "git: custom::repository", path: "glossary.yaml", format: "yaml"},
+		{name: "format override", fields: "git: owner/repo\n    path: terms\n    format: yaml", path: "terms", format: "yaml"},
+		{name: "conflicting file", fields: "git: owner/repo\n    file: terms.json", invalid: true},
+		{name: "conflicting URL", fields: "git: owner/repo\n    url: https://example.com", invalid: true},
+		{name: "path without Git", fields: "file: terms.json\n    path: glossary.yaml", invalid: true},
+		{name: "ref without Git", fields: "file: terms.json\n    ref: main", invalid: true},
+		{name: "traversal", fields: "git: owner/repo\n    path: ../terms.yaml", invalid: true},
+		{name: "absolute path", fields: "git: owner/repo\n    path: /terms.yaml", invalid: true},
+		{name: "option repository", fields: "git: --upload-pack=bad", invalid: true},
+		{name: "option ref", fields: "git: owner/repo\n    ref: --upload-pack=bad", invalid: true},
+		{name: "blank repository", fields: "git: ' '", invalid: true},
+		{name: "shared secret", fields: "git: owner/repo\n    auth: {shared_secret: {env: UNUSED_SECRET}}", invalid: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c, err := Load(writeConfig(t, "sources:\n  - id: team\n    "+tc.fields+"\n"))
+			if tc.invalid {
+				if err == nil {
+					t.Fatal("expected validation failure")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if c.Sources[0].Path != tc.path || c.Sources[0].Format != tc.format {
+				t.Fatalf("unexpected Git source: %+v", c.Sources[0])
+			}
+			out, _ := json.Marshal(c.Diagnostics())
+			if strings.Contains(string(out), c.Sources[0].Git) {
+				t.Fatalf("diagnostics expose Git repository: %s", out)
+			}
+		})
+	}
+}

@@ -139,7 +139,7 @@ Reactivation requires removing explicit flags and outgoing replacements, includi
 
 Sources are complete snapshots, not manifests of source URLs. Each accepted snapshot atomically replaces the previous one, including removals; empty glossaries clear the source. Invalid input or failed fetches preserve the last snapshot.
 
-See [source settings](sources.md) for files, HTTP, and discovery, and [publishing](publishing.md) for named exports. The proposed `/.well-known/glossary` convention is not a registered standard or automatic discovery mechanism. Its root serves the bundled project glossary; named exports serve company content and exclude the project source.
+See [source settings](sources.md) for files, HTTP, Git repositories, and discovery, and [publishing](publishing.md) for named exports. The proposed `/.well-known/glossary` convention is not a registered standard or automatic discovery mechanism. Its root serves the bundled project glossary; named exports serve company content and exclude the project source.
 
 ## Consume Exported Glossaries
 

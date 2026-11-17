@@ -15,7 +15,7 @@ sources:
     url: https://payments.internal/.well-known/glossary
 ```
 
-Each source needs a unique ID and a file or HTTP(S) URL. Relative paths resolve from the config file. Restart after configuration changes; glossary content is polled automatically, every five minutes by default.
+Each source needs a unique ID and a file, HTTP(S) URL, or Git repository. Relative paths resolve from the config file. Restart after configuration changes; glossary content is polled automatically, every five minutes by default.
 
 See the [annotated config](../examples/config.yaml) for settings and [source rules](sources.md) for discovery, authentication, and failures.
 

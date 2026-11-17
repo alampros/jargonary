@@ -41,6 +41,19 @@ func (Source) JSONSchemaExtend(s *jsonschema.Schema) {
 	// Sources may fetch with a secret but cannot declare public export access.
 	s.AllOf = []*jsonschema.Schema{
 		propertyRule("auth", propertyRule("public", &jsonschema.Schema{Const: false})),
+		{
+			If: &jsonschema.Schema{Not: &jsonschema.Schema{Required: []string{"git"}}},
+			Then: &jsonschema.Schema{Not: &jsonschema.Schema{AnyOf: []*jsonschema.Schema{
+				{Required: []string{"path"}},
+				{Required: []string{"ref"}},
+			}}},
+		},
+		{
+			If: &jsonschema.Schema{Required: []string{"git"}},
+			Then: propertyRule("auth", &jsonschema.Schema{
+				Not: &jsonschema.Schema{Required: []string{"shared_secret"}},
+			}),
+		},
 	}
 }
 
