@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -35,11 +36,11 @@ func main() {
 func run() error {
 	configPath := flag.String("config", "", "YAML configuration file")
 	var inputFile string
-	flag.StringVar(&inputFile, "input-file", "", "serve a single glossary file instead of configured or discovered sources")
+	flag.StringVar(&inputFile, "input-file", "", "serve a single glossary file (- for stdin) instead of configured or discovered sources")
 	flag.StringVar(&inputFile, "f", "", "alias for -input-file")
 	devUI := flag.Bool("dev-ui", false, "load frontend modules from local Vite (run from repository root)")
-	validate := flag.String("validate", "", "validate a dictionary file and exit")
-	format := flag.String("format", "json", "glossary format for -validate: json, yaml")
+	validate := flag.String("validate", "", "validate a glossary file (- for stdin) and exit")
+	format := flag.String("format", "", "glossary format for -validate or -input-file: json, yaml (default JSON; input files infer from extension)")
 	schema := flag.Bool("schema", false, "print the structural dictionary JSON Schema and exit")
 	configSchema := flag.Bool("config-schema", false, "print the configuration JSON Schema and exit")
 	schemaVersion := flag.String("schema-version", "", "release version for schema generation (required with -schema or -config-schema)")
@@ -48,20 +49,27 @@ func run() error {
 		return writeSchema(os.Stdout, *schemaVersion, *configSchema)
 	}
 	if *validate != "" {
-		b, err := os.ReadFile(*validate)
-		if err != nil {
-			return errors.New("cannot read validation input")
+		if inputFile != "" {
+			return errors.New("-validate and -input-file cannot be combined")
 		}
-		d, err := vocabulary.Parse(b, *format)
+		d, err := readGlossaryInput(*validate, *format, os.Stdin, 0)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("valid dictionary: %d entries\n", len(d.Entries))
+		fmt.Printf("valid glossary: %d entries\n", len(d.Entries))
 		return nil
 	}
-	c, err := config.LoadWithInputFile(*configPath, inputFile)
+	c, err := config.LoadWithInput(*configPath, inputFile, *format)
 	if err != nil {
 		return err
+	}
+	var stdinGlossary *vocabulary.Dictionary
+	if inputFile == "-" {
+		d, err := readGlossaryInput("-", c.Sources[0].Format, os.Stdin, c.MaxBytes)
+		if err != nil {
+			return err
+		}
+		stdinGlossary = &d
 	}
 	logResolvedConfiguration(slog.Default(), c, *devUI)
 	st, err := store.Open(c.Database)
@@ -73,6 +81,11 @@ func run() error {
 	defer stop()
 	if err := initializeSources(ctx, c, st); err != nil {
 		return err
+	}
+	if stdinGlossary != nil {
+		if _, err := st.Replace(ctx, "glossary", *stdinGlossary, "", ""); err != nil {
+			return err
+		}
 	}
 	svc := &server.Server{Config: c, Store: st}
 	if *devUI {
@@ -147,6 +160,35 @@ func run() error {
 	}
 	slog.Info("shutdown complete")
 	return nil
+}
+
+// readGlossaryInput reads one complete document. A zero limit preserves the
+// validation command's unrestricted file size; serving uses configured max_bytes.
+func readGlossaryInput(path, format string, stdin io.Reader, maxBytes int64) (vocabulary.Dictionary, error) {
+	var empty vocabulary.Dictionary
+	r := stdin
+	if path != "-" {
+		f, err := os.Open(path)
+		if err != nil {
+			return empty, errors.New("cannot read glossary input")
+		}
+		defer f.Close()
+		r = f
+	}
+	if maxBytes > 0 {
+		r = io.LimitReader(r, maxBytes+1)
+	}
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return empty, errors.New("cannot read glossary input")
+	}
+	if maxBytes > 0 && int64(len(b)) > maxBytes {
+		return empty, errors.New("glossary input exceeds max_bytes")
+	}
+	if format == "" {
+		format = "json"
+	}
+	return vocabulary.Parse(b, format)
 }
 
 func initializeSources(ctx context.Context, c config.Config, st *store.Store) error {

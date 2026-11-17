@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/alampros/jargonary/internal/config"
@@ -11,6 +14,57 @@ import (
 	"github.com/alampros/jargonary/internal/store"
 	"github.com/alampros/jargonary/internal/vocabulary"
 )
+
+func TestReadGlossaryInput(t *testing.T) {
+	json := `{"version":"1","name":"Piped glossary","entries":[]}`
+	yaml := "version: '1'\nname: Piped glossary\nentries: []\n"
+	for _, tc := range []struct {
+		name, body, format string
+		limit              int64
+		wantErr            bool
+	}{
+		{name: "default JSON", body: json},
+		{name: "explicit JSON", body: json, format: "json"},
+		{name: "YAML", body: yaml, format: "yaml"},
+		{name: "exact size limit", body: json, limit: int64(len(json))},
+		{name: "over limit", body: json, limit: int64(len(json) - 1), wantErr: true},
+		{name: "empty input", wantErr: true},
+		{name: "malformed", body: "{", wantErr: true},
+		{name: "semantic error", body: `{"version":"1","name":"Piped glossary","entries":[{"id":"bad","term":"Bad","senses":[]}]}`, wantErr: true},
+		{name: "multiple JSON documents", body: json + json, wantErr: true},
+		{name: "multiple YAML documents", body: yaml + "---\n" + yaml, format: "yaml", wantErr: true},
+		{name: "unsupported format", body: json, format: "csv", wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			d, err := readGlossaryInput("-", tc.format, strings.NewReader(tc.body), tc.limit)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("error = %v, wantErr %v", err, tc.wantErr)
+			}
+			if !tc.wantErr && (d.Name != "Piped glossary" || len(d.Entries) != 0) {
+				t.Fatalf("unexpected glossary: %+v", d)
+			}
+		})
+	}
+	path := filepath.Join(t.TempDir(), "input.json")
+	if err := os.WriteFile(path, []byte(json), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := readGlossaryInput(path, "json", failingReader{}, 0); err != nil {
+		t.Fatalf("file input should not read stdin: %v", err)
+	}
+	if _, err := readGlossaryInput(path+".missing", "json", nil, 0); err == nil {
+		t.Fatal("accepted missing input file")
+	}
+	if _, err := readGlossaryInput("-", "json", failingReader{}, 0); err == nil || strings.Contains(err.Error(), "private payload") {
+		t.Fatalf("read error missing or leaked input: %v", err)
+	}
+}
+
+type failingReader struct{}
+
+func (failingReader) Read([]byte) (int, error) {
+	return 0, errors.New("private payload")
+}
 
 func TestProjectGlossaryStartupTransitions(t *testing.T) {
 	ctx := context.Background()

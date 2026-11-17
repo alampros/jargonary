@@ -58,6 +58,7 @@ func TestInputFile(t *testing.T) {
 		{name: "absolute JSON", source: "/tmp/team.json", format: "json"},
 		{name: "YML", source: "team.YML", format: "yml"},
 		{name: "extensionless JSON", source: "glossary", format: "json"},
+		{name: "stdin", source: "-", format: "json"},
 		{name: "unsupported format", source: "team.csv", wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -85,7 +86,7 @@ func TestInputFile(t *testing.T) {
 				}
 				s := c.Sources[0]
 				want := tc.source
-				if !filepath.IsAbs(want) {
+				if want != "-" && !filepath.IsAbs(want) {
 					want = filepath.Join(dir, want)
 				}
 				if s.File != want || s.URL != "" {
@@ -99,6 +100,21 @@ func TestInputFile(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestInputFormatOverride(t *testing.T) {
+	for _, input := range []string{"-", "glossary.json", "glossary.data"} {
+		c, err := LoadWithInput("", input, "yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(c.Sources) != 1 || c.Sources[0].Format != "yaml" {
+			t.Fatalf("format override lost for %q: %+v", input, c.Sources)
+		}
+		if _, err := LoadWithInput("", input, "csv"); err == nil {
+			t.Fatalf("accepted unsupported format for %q", input)
+		}
 	}
 }
 

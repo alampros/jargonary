@@ -26,6 +26,21 @@ Or serve one glossary directly:
 ./jargonary -f ./glossary.yaml
 ```
 
+Use stdin for CI checks or to preview a glossary without saving a temporary file:
+
+```sh
+# CI: validate YAML and exit with a nonzero status if invalid.
+./jargonary -validate - -format yaml < terms/payments.yaml
+
+# Preview JSON produced by your own exporter or generation script.
+./scripts/generate-glossary | ./jargonary -f -
+
+# Browse a snapshot of a published glossary in the local web UI.
+curl -fsS https://glossary.example.com/.well-known/glossary/partners | ./jargonary -f -
+```
+
+Replace the script and URL with your own. JSON is the default; use `-format yaml` for YAML. Serving waits for EOF, validates the input, and serves one snapshot until stopped. In Bash or Zsh, use `set -o pipefail` to also fail a pipeline when its generator or download fails. See [stdin details and Docker usage](docs/sources.md#read-from-stdin).
+
 With Go 1.27 or newer, install the CLI from the current source:
 
 ```sh

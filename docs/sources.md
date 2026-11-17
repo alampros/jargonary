@@ -12,9 +12,34 @@ See the [annotated config](../examples/config.yaml) for all settings.
 ./jargonary -input-file ./terms/payments.json
 ```
 
-`-f` and `-input-file` accept a single local glossary file, replace configured sources and discovery, and hide the bundled project glossary. The source ID is `glossary`. Format is inferred from the file extension, defaulting to JSON. Content is polled using the normal source rules.
+`-f` and `-input-file` accept a single local glossary file, replace configured sources and discovery, and hide the bundled project glossary. The source ID is `glossary`. Format is inferred from the file extension, defaulting to JSON; `-format yaml` or `-format json` overrides it. File content is polled using the normal source rules.
 
-You can combine it with `-config` for other settings. The source file path resolves from the working directory, even when the config is elsewhere. Configured exports must reference `glossary` or omit source selectors. For HTTP(S) sources, authentication, or an explicit format override, use a configured source instead.
+You can combine it with `-config` for other settings. The source file path resolves from the working directory, even when the config is elsewhere. Configured exports must reference `glossary` or omit source selectors. For HTTP(S) sources or authentication, use a configured source instead.
+
+## Read from stdin
+
+Use a literal `-` to read one complete glossary from stdin:
+
+```sh
+# Validate and exit, returning a nonzero status on invalid input.
+./jargonary -validate - -format yaml < terms/payments.yaml
+
+# Serve a generated JSON glossary in the web UI.
+generate-glossary | ./jargonary -f -
+
+# Serve YAML from stdin with other settings from a config file.
+./jargonary -config config.yaml -f - -format yaml < terms/payments.yaml
+```
+
+Stdin defaults to JSON; use `-format yaml` for YAML. Input is read only when explicitly requested with `-`. Serving waits for EOF, validates the complete document, and loads it before opening listeners. Invalid, empty, or oversized input fails startup; a valid glossary with `entries: []` serves an empty snapshot. The `max_bytes` limit applies when serving.
+
+The stdin snapshot uses source ID `glossary`, replaces configured sources and discovery, and hides the bundled project glossary, just like `-f` with a file. It is never polled or reread; the server keeps running until stopped. Restart with new input to replace it. `-validate` exits after validation and cannot be combined with `-f` or `-input-file`.
+
+For Docker, keep stdin open with `-i` and omit `-t`:
+
+```sh
+docker run --rm -i -p 8080:8080 ghcr.io/alampros/jargonary:0.2.0 -f - -format yaml < terms/payments.yaml
+```
 
 ## Polling and limits
 

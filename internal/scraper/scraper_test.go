@@ -13,7 +13,37 @@ import (
 
 	"github.com/alampros/jargonary/internal/config"
 	"github.com/alampros/jargonary/internal/store"
+	"github.com/alampros/jargonary/internal/vocabulary"
 )
+
+func TestRunPreservesStdinSnapshot(t *testing.T) {
+	ctx := context.Background()
+	st, err := store.Open(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	d, err := vocabulary.Parse([]byte(`{"version":"1","name":"Stdin","entries":[]}`), "json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.Replace(ctx, "glossary", d, "", ""); err != nil {
+		t.Fatal(err)
+	}
+	c := config.Config{Sources: []config.Source{{ID: "glossary", File: "-", Format: "json"}}}
+	// No worker should attempt to open "-", record a failed scrape, or poll.
+	if err := New(c, st).Run(ctx); err != nil {
+		t.Fatal(err)
+	}
+	statuses, err := st.Statuses(ctx)
+	if err != nil || len(statuses) != 0 {
+		t.Fatalf("stdin was scraped: %+v, %v", statuses, err)
+	}
+	snapshots, err := st.Snapshots(ctx)
+	if err != nil || len(snapshots) != 1 || snapshots[0].Dictionary.Name != "Stdin" {
+		t.Fatalf("stdin snapshot changed: %+v, %v", snapshots, err)
+	}
+}
 
 func TestLastSuccessRetentionAndExplicitRemoval(t *testing.T) {
 	ctx := context.Background()

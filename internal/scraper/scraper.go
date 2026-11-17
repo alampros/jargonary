@@ -34,7 +34,13 @@ func (s *Scraper) Run(ctx context.Context) error {
 	// Bounded concurrency; each source has at most one in-flight scrape.
 	sem := make(chan struct{}, 4)
 	done := make(chan error, len(s.Config.Sources))
+	workers := 0
 	for _, source := range s.Config.Sources {
+		// CLI stdin is loaded before listeners start and never refreshed.
+		if source.File == "-" {
+			continue
+		}
+		workers++
 		go func(source config.Source) {
 			var workerErr error
 			defer func() { done <- workerErr }()
@@ -88,7 +94,7 @@ func (s *Scraper) Run(ctx context.Context) error {
 		}(source)
 	}
 	var firstError error
-	for range s.Config.Sources {
+	for range workers {
 		if err := <-done; err != nil && firstError == nil {
 			firstError = err
 			cancel()

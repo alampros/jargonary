@@ -160,7 +160,7 @@ Exports selecting imported entries are unavailable in v1. Provenance is applicat
 Use [JSON Schema](schemas.md) for editor checks, then validate the complete document:
 
 ```sh
-docker run --rm -i ghcr.io/alampros/jargonary:0.2.0 -validate /dev/stdin -format yaml < terms/payments.yaml
+docker run --rm -i ghcr.io/alampros/jargonary:0.2.0 -validate - -format yaml < terms/payments.yaml
 ```
 
 Use your deployed image version (without a leading `v`). The command passes the file through stdin, so it needs no bind mount or local Jargonary installation. Keep `-i` and omit `-t`; the container exits after validation.
