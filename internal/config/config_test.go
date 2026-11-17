@@ -91,7 +91,7 @@ func TestInputFile(t *testing.T) {
 				if s.File != want || s.URL != "" {
 					t.Fatalf("unexpected file source: %+v; want %s", s, want)
 				}
-				if s.ScrapeInterval != c.ScrapeInterval || c.Origins["sources"] != "command-line --input-file" {
+				if s.ScrapeInterval != c.ScrapeInterval || c.Origins["sources"] != "command-line -input-file" {
 					t.Fatal("source defaults or origin missing")
 				}
 				if path != "" && c.SiteName != "Selected glossary" {

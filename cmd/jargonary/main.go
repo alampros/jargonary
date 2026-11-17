@@ -36,7 +36,7 @@ func run() error {
 	configPath := flag.String("config", "", "YAML configuration file")
 	var inputFile string
 	flag.StringVar(&inputFile, "input-file", "", "serve a single glossary file instead of configured or discovered sources")
-	flag.StringVar(&inputFile, "f", "", "alias for --input-file")
+	flag.StringVar(&inputFile, "f", "", "alias for -input-file")
 	devUI := flag.Bool("dev-ui", false, "load frontend modules from local Vite (run from repository root)")
 	validate := flag.String("validate", "", "validate a dictionary file and exit")
 	format := flag.String("format", "json", "glossary format for -validate: json, yaml")
