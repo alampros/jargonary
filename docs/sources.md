@@ -100,6 +100,6 @@ Authenticated URLs require HTTPS; requests send `Authorization: Bearer <secret>`
 
 ## Bundled project glossary
 
-Source ID `project` is reserved. `hide_jargonary_glossary: true` hides it when company sources exist; with none configured or discovered, it remains the fallback. Empty or failed scrapes do not activate the fallback.
+Source ID `project` is reserved. The bundled project glossary is enabled only when no other sources are configured or discovered. A local `glossary.yaml` or `glossary.json` therefore disables it automatically. Empty or failed scrapes do not activate the fallback. The deprecated `hide_jargonary_glossary` setting is accepted for compatibility but no longer affects this rule.
 
 The root `/.well-known/glossary` serves this glossary, or 404 when disabled. Company content uses [named exports](publishing.md). The path is a proposed convention, not a registered standard or automatic network discovery.

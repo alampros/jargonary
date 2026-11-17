@@ -1,5 +1,4 @@
 site_name: Engineering upstream
-hide_jargonary_glossary: true
 public_url: http://localhost:8081
 sources:
   - id: engineering

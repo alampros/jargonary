@@ -103,7 +103,7 @@ type Config struct {
 	CustomJS              []string          `yaml:"custom_js" json:"custom_js"`
 	CustomCSSData         [][]byte          `yaml:"-" json:"-"`
 	CustomJSData          [][]byte          `yaml:"-" json:"-"`
-	HideJargonaryGlossary bool              `yaml:"hide_jargonary_glossary" json:"hide_jargonary_glossary"`
+	HideJargonaryGlossary bool              `yaml:"hide_jargonary_glossary" json:"hide_jargonary_glossary" jsonschema_description:"Deprecated; the bundled project glossary is enabled only when no other sources are configured or discovered."`
 	SiteName              string            `yaml:"site_name" json:"site_name" jsonschema:"pattern=\\S,default=Jargonary" jsonschema_description:"Display name, 1–120 characters after trimming whitespace."`
 	Server                Listener          `yaml:"server" json:"server"`
 	Admin                 Admin             `yaml:"admin" json:"admin"`
@@ -122,7 +122,7 @@ type Config struct {
 // IncludeProjectGlossary keeps the bundled source as a fallback when no company
 // sources are configured or discovered, irrespective of scrape success.
 func (c Config) IncludeProjectGlossary() bool {
-	return !c.HideJargonaryGlossary || len(c.Sources) == 0
+	return len(c.Sources) == 0
 }
 
 func Load(path string) (Config, error) {

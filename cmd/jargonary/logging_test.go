@@ -71,7 +71,7 @@ exports:
 	if err := json.Unmarshal(out.Bytes(), &record); err != nil {
 		t.Fatal(err)
 	}
-	if record.Config.Database != filepath.Join(dir, "cache.db") || record.Config.Server.Listen != "0.0.0.0:8080" || !record.DevUI || !record.ProjectEnabled {
+	if record.Config.Database != filepath.Join(dir, "cache.db") || record.Config.Server.Listen != "0.0.0.0:8080" || !record.DevUI || record.ProjectEnabled {
 		t.Fatalf("missing resolved startup settings: %s", out.String())
 	}
 	source := record.Config.Sources[0]

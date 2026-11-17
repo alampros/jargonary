@@ -201,7 +201,8 @@ func TestProjectGlossaryInclusion(t *testing.T) {
 		body string
 		want bool
 	}{
-		{"default with company", "sources:\n  - id: company\n    file: company.json\n", true},
+		{"default with company", "sources:\n  - id: company\n    file: company.json\n", false},
+		{"explicit false with company", "hide_jargonary_glossary: false\nsources:\n  - id: company\n    file: company.json\n", false},
 		{"hidden with company", "hide_jargonary_glossary: true\nsources:\n  - id: company\n    file: company.json\n", false},
 		{"empty default", "sources: []\n", true},
 		{"empty fallback", "hide_jargonary_glossary: true\nsources: []\n", true},
@@ -219,7 +220,7 @@ func TestProjectGlossaryInclusion(t *testing.T) {
 			}
 		})
 	}
-	path := writeConfig(t, "hide_jargonary_glossary: true\nterms_dir: terms\n")
+	path := writeConfig(t, "terms_dir: terms\n")
 	if err := os.Mkdir(filepath.Join(filepath.Dir(path), "terms"), 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -311,6 +312,9 @@ func TestWorkingDirectoryDiscovery(t *testing.T) {
 			}
 			if len(c.Sources) != 1 || c.Sources[0].ID != tc.wantID || c.Sources[0].Format != tc.format {
 				t.Fatalf("unexpected sources: %+v", c.Sources)
+			}
+			if c.IncludeProjectGlossary() {
+				t.Fatal("configured or discovered source must disable the bundled project glossary")
 			}
 			if tc.wantID == "glossary" && c.Sources[0].File != filepath.Join(dir, "glossary."+tc.format) {
 				t.Fatalf("glossary did not resolve from cwd: %+v", c.Sources[0])

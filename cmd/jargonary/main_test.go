@@ -76,9 +76,10 @@ func TestProjectGlossaryStartupTransitions(t *testing.T) {
 		sources     []config.Source
 		wantProject bool
 	}{
-		{"default", false, []config.Source{{ID: "company"}}, true},
+		{"initial fallback", false, nil, true},
+		{"configured source retires cached fallback", false, []config.Source{{ID: "company"}}, false},
 		{"hidden on restart", true, []config.Source{{ID: "company"}}, false},
-		{"reenabled on restart", false, []config.Source{{ID: "company"}}, true},
+		{"false setting does not reenable project", false, []config.Source{{ID: "company"}}, false},
 		{"empty fallback", true, nil, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

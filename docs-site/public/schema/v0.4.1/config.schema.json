@@ -67,7 +67,8 @@
           "type": "array"
         },
         "hide_jargonary_glossary": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Deprecated; the bundled project glossary is enabled only when no other sources are configured or discovered."
         },
         "site_name": {
           "type": "string",
@@ -340,6 +341,49 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "not": {
+              "required": [
+                "git"
+              ]
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "path"
+                  ]
+                },
+                {
+                  "required": [
+                    "ref"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "git"
+            ]
+          },
+          "then": {
+            "properties": {
+              "auth": {
+                "not": {
+                  "required": [
+                    "shared_secret"
+                  ]
+                }
+              }
+            }
+          }
         }
       ],
       "oneOf": [
@@ -354,6 +398,12 @@
             "file"
           ],
           "title": "file"
+        },
+        {
+          "required": [
+            "git"
+          ],
+          "title": "git"
         }
       ],
       "properties": {
@@ -372,6 +422,19 @@
         "file": {
           "type": "string",
           "minLength": 1
+        },
+        "git": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative glossary file; defaults to glossary.yaml for Git sources."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Git branch, tag, or commit; defaults to the remote HEAD."
         },
         "format": {
           "type": "string",
