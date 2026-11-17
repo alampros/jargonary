@@ -90,6 +90,8 @@ jobs:
           cache-dependency-path: ui/package-lock.json
       - name: Build frontend
         run: go tool task ui:build
+      - name: Check diff
+        run: git diff --exit-code
       - name: Check TypeScript
         run: npm --prefix ui run typecheck
       - name: Install test browser
