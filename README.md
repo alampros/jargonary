@@ -20,6 +20,12 @@ Or download a [release binary](https://github.com/alampros/jargonary/releases):
 ./jargonary -config examples/config.yaml
 ```
 
+Or serve one glossary directly:
+
+```sh
+./jargonary -f ./glossary.yaml
+```
+
 With Go 1.27 or newer, install the CLI from the current source:
 
 ```sh

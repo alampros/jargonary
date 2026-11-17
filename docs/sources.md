@@ -5,6 +5,17 @@ editUrl: https://github.com/alampros/jargonary/edit/main/docs/sources.md
 
 See the [annotated config](../examples/config.yaml) for all settings.
 
+## Run with one source
+
+```sh
+./jargonary -f ./terms/payments.yaml
+./jargonary --input-file ./terms/payments.json
+```
+
+`-f` and `--input-file` accept a single local glossary file, replace configured sources and discovery, and hide the bundled project glossary. The source ID is `glossary`. Format is inferred from the file extension, defaulting to JSON. Content is polled using the normal source rules.
+
+You can combine it with `-config` for other settings. The source file path resolves from the working directory, even when the config is elsewhere. Configured exports must reference `glossary` or omit source selectors. For HTTP(S) sources, authentication, or an explicit format override, use a configured source instead.
+
 ## Polling and limits
 
 | Setting | Default | Range |

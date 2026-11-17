@@ -122,6 +122,12 @@ func (c Config) IncludeProjectGlossary() bool {
 }
 
 func Load(path string) (Config, error) {
+	return LoadWithInputFile(path, "")
+}
+
+// LoadWithInputFile replaces configured sources and discovery with a single glossary
+// when inputFile is nonempty. The file path resolves from the working directory.
+func LoadWithInputFile(path, inputFile string) (Config, error) {
 	c := Config{SiteName: "Jargonary", Theme: "default", Server: Listener{Listen: "0.0.0.0:8080"}, Admin: Admin{Listen: "127.0.0.1:9090"}, MCP: MCP{Listen: "127.0.0.1:9091"}, Database: ":memory:", TermsDir: "/terms", ScrapeInterval: Duration(5 * time.Minute), Timeout: Duration(15 * time.Second), MaxBytes: 8 << 20, Origins: map[string]string{"defaults": "built-in"}}
 	if path != "" {
 		b, err := os.ReadFile(path)
@@ -170,6 +176,16 @@ func Load(path string) (Config, error) {
 	}
 	if err := c.resolveAppearance(path); err != nil {
 		return c, err
+	}
+	if inputFile != "" {
+		file, err := filepath.Abs(inputFile)
+		if err != nil {
+			return c, err
+		}
+		c.Sources = []Source{{ID: "glossary", File: file}}
+		c.HideJargonaryGlossary = true
+		c.Origins["sources"] = "command-line --input-file"
+		c.Origins["hide_jargonary_glossary"] = "command-line --input-file"
 	}
 	if _, explicit := c.Origins["sources"]; explicit && c.Sources == nil {
 		return c, errors.New("sources must be an array; use [] to explicitly disable discovery")

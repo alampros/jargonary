@@ -47,6 +47,61 @@ func TestDatabaseConfiguration(t *testing.T) {
 	}
 }
 
+func TestInputFile(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		source  string
+		format  string
+		wantErr bool
+	}{
+		{name: "relative YAML", source: "terms/team.yaml", format: "yaml"},
+		{name: "absolute JSON", source: "/tmp/team.json", format: "json"},
+		{name: "YML", source: "team.YML", format: "yml"},
+		{name: "extensionless JSON", source: "glossary", format: "json"},
+		{name: "unsupported format", source: "team.csv", wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			t.Chdir(dir)
+			// Conflicting discovered files must not affect an explicit source.
+			for _, name := range []string{"glossary.yaml", "glossary.json"} {
+				if err := os.WriteFile(name, []byte("fixture"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			for _, path := range []string{"", writeConfig(t, "site_name: Selected glossary\nterms_dir: missing\nsources:\n  - id: ignored\n    url: https://ignored.test/glossary\n    auth:\n      shared_secret:\n        env: UNUSED_SOURCE_SECRET\n")} {
+				c, err := LoadWithInputFile(path, tc.source)
+				if tc.wantErr {
+					if err == nil {
+						t.Fatal("expected invalid source error")
+					}
+					continue
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(c.Sources) != 1 || c.Sources[0].ID != "glossary" || c.Sources[0].Format != tc.format || c.IncludeProjectGlossary() {
+					t.Fatalf("unexpected single-source configuration: %+v", c)
+				}
+				s := c.Sources[0]
+				want := tc.source
+				if !filepath.IsAbs(want) {
+					want = filepath.Join(dir, want)
+				}
+				if s.File != want || s.URL != "" {
+					t.Fatalf("unexpected file source: %+v; want %s", s, want)
+				}
+				if s.ScrapeInterval != c.ScrapeInterval || c.Origins["sources"] != "command-line --input-file" {
+					t.Fatal("source defaults or origin missing")
+				}
+				if path != "" && c.SiteName != "Selected glossary" {
+					t.Fatal("other configuration settings were lost")
+				}
+			}
+		})
+	}
+}
+
 func TestDefaultsAndSecretRedaction(t *testing.T) {
 	c, err := Load("")
 	if err != nil {
