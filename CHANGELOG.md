@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/alampros/jargonary/compare/v0.3.0...v0.4.0) (2026-11-17)
+
+
+### Features
+
+* install via homebrew tap ([5160353](https://github.com/alampros/jargonary/commit/51603536c1160e730cf9baff150fb3cc9d5e94ea))
+
 ## [0.3.0](https://github.com/alampros/jargonary/compare/v0.2.1...v0.3.0) (2026-11-17)
 
 
