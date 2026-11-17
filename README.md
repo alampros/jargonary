@@ -61,7 +61,7 @@ sources:
 
 Sources are polled; failed fetches retain the last accepted content. `/.well-known/glossary` is a proposed convention, not a registered standard or automatic network discovery.
 
-See the [format guide](docs/dictionary-format.md), [schema](docs-site/public/schema/v0.3.0/glossary.schema.json), and [examples](examples/terms/). Named [exports](docs/publishing.md) share selected content; read-only [MCP](docs/mcp.md) tools expose it to AI clients.
+See the [format guide](docs/dictionary-format.md), [schema](docs-site/public/schema/v0.4.0/glossary.schema.json), and [examples](examples/terms/). Named [exports](docs/publishing.md) share selected content; read-only [MCP](docs/mcp.md) tools expose it to AI clients.
 
 To generate a glossary from your project's documentation and code, point your LLM to the [glossary generation skill](skills/generate-jargonary-glossary/SKILL.md).
 
