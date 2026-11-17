@@ -25,6 +25,9 @@ import (
 	"github.com/alampros/jargonary/internal/vocabulary"
 )
 
+// version is set by the release build with -ldflags "-X main.version=...".
+var version = "dev"
+
 func main() {
 	slog.SetDefault(newLogger(os.Stdout, term.IsTerminal(int(os.Stdout.Fd()))))
 	if err := run(); err != nil {
@@ -34,6 +37,9 @@ func main() {
 }
 
 func run() error {
+	var showVersion bool
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
+	flag.BoolVar(&showVersion, "v", false, "alias for -version")
 	configPath := flag.String("config", "", "YAML configuration file")
 	var inputFile string
 	flag.StringVar(&inputFile, "input-file", "", "serve a single glossary file (- for stdin) instead of configured or discovered sources")
@@ -45,6 +51,10 @@ func run() error {
 	configSchema := flag.Bool("config-schema", false, "print the configuration JSON Schema and exit")
 	schemaVersion := flag.String("schema-version", "", "release version for schema generation (required with -schema or -config-schema)")
 	flag.Parse()
+	if showVersion {
+		_, err := fmt.Fprintln(os.Stdout, "jargonary", version)
+		return err
+	}
 	if *configSchema || *schema {
 		return writeSchema(os.Stdout, *schemaVersion, *configSchema)
 	}

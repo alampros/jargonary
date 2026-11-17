@@ -36,6 +36,8 @@ For other platforms, download a [release binary](https://github.com/alampros/jar
 
 The default public listener is `:8080`.
 
+Use `./jargonary -version` (or `-v`) to print the version and exit. Local source builds report `dev`.
+
 ## Container
 
 ```sh
