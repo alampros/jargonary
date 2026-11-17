@@ -28,8 +28,9 @@ scrape_interval: 5m
 timeout: 15s
 max_bytes: 8388608
 
-# Explicit sources replace startup directory discovery. File/secret paths are
-# relative to this config file. Settings and secret references resolve at startup.
+# Explicit sources replace startup terms_dir and working-directory glossary discovery.
+# File/secret paths are relative to this config file. Settings and secret references
+# resolve at startup.
 # sources:
 #   - id: payments
 #     url: https://payments.internal/.well-known/glossary

@@ -193,6 +193,38 @@ func Load(path string) (Config, error) {
 		if len(c.Sources) > 0 {
 			c.Origins["sources"] = "terms-directory discovery (startup only)"
 		}
+		for _, name := range []string{"glossary.yaml", "glossary.json"} {
+			info, err := os.Lstat(name)
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			if err != nil {
+				return c, errors.New("cannot discover working-directory glossary")
+			}
+			if !info.Mode().IsRegular() {
+				continue
+			}
+			path, err := filepath.Abs(name)
+			if err != nil {
+				return c, err
+			}
+			// terms_dir may already point to the working directory.
+			found := false
+			for _, source := range c.Sources {
+				existing, err := filepath.Abs(source.File)
+				if err != nil {
+					return c, err
+				}
+				if existing == path {
+					found = true
+					break
+				}
+			}
+			if !found {
+				c.Sources = append(c.Sources, Source{ID: "glossary", File: path, Format: strings.TrimPrefix(filepath.Ext(name), ".")})
+				c.Origins["sources"] = "local-file discovery (startup only)"
+			}
+		}
 	}
 	if err := c.Validate(); err != nil {
 		return c, err

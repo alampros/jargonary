@@ -21,6 +21,8 @@ Up to four sources fetch concurrently. Failed fetches retry with backoff and ret
 
 Omitting `sources` loads `.json`, `.yaml`, and `.yml` files directly in `terms_dir` (default `/terms`). Filenames without extensions become source IDs and must be unique. Subdirectories and symlinks are ignored.
 
+Discovery also looks for `glossary.yaml` and `glossary.json` in the current working directory, even when the config file is elsewhere. These use source ID `glossary`; keep only one format and avoid another discovered file with that ID. A file already found through `terms_dir` is loaded only once.
+
 Discovery runs at startup. Deleting a file while running retains its cache. Explicit `sources` replaces discovery; `sources: []` disables it.
 
 ## Protected sources

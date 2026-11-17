@@ -193,6 +193,99 @@ func TestExplicitEmptySourcesDisablesDiscovery(t *testing.T) {
 	}
 }
 
+func TestWorkingDirectoryDiscovery(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		files    []string
+		settings string
+		wantID   string
+		format   string
+		wantErr  bool
+	}{
+		{name: "yaml without config", files: []string{"glossary.yaml"}, wantID: "glossary", format: "yaml"},
+		{name: "json without config", files: []string{"glossary.json"}, wantID: "glossary", format: "json"},
+		{name: "config elsewhere", files: []string{"glossary.yaml"}, settings: "terms_dir: missing\n", wantID: "glossary", format: "yaml"},
+		{name: "explicit empty", files: []string{"glossary.yaml"}, settings: "sources: []\n"},
+		{name: "explicit source", files: []string{"glossary.json"}, settings: "sources:\n  - id: company\n    file: company.json\n", wantID: "company", format: "json"},
+		{name: "unrelated files", files: []string{"other.yaml", "glossary.csv", "glossary.yml"}},
+		{name: "duplicate formats", files: []string{"glossary.yaml", "glossary.json"}, wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			t.Chdir(dir)
+			for _, name := range tc.files {
+				if err := os.WriteFile(name, []byte("fixture"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			path := ""
+			if tc.settings != "" {
+				path = writeConfig(t, tc.settings)
+			}
+			c, err := Load(path)
+			if tc.wantErr {
+				if err == nil || !strings.Contains(err.Error(), "duplicate") {
+					t.Fatalf("expected duplicate source error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if tc.wantID == "" {
+				if len(c.Sources) != 0 {
+					t.Fatalf("unexpected sources: %+v", c.Sources)
+				}
+				return
+			}
+			if len(c.Sources) != 1 || c.Sources[0].ID != tc.wantID || c.Sources[0].Format != tc.format {
+				t.Fatalf("unexpected sources: %+v", c.Sources)
+			}
+			if tc.wantID == "glossary" && c.Sources[0].File != filepath.Join(dir, "glossary."+tc.format) {
+				t.Fatalf("glossary did not resolve from cwd: %+v", c.Sources[0])
+			}
+		})
+	}
+}
+
+func TestWorkingDirectoryDiscoveryWithTermsDirectory(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+	for _, name := range []string{"glossary.yaml", "company.json"} {
+		if err := os.WriteFile(name, []byte("fixture"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, termsDir := range []string{dir, filepath.Join(dir, "terms")} {
+		if termsDir != dir {
+			if err := os.Mkdir(termsDir, 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(termsDir, "company.json"), []byte("fixture"), 0600); err != nil {
+				t.Fatal(err)
+			}
+		}
+		c, err := Load(writeConfig(t, "terms_dir: "+termsDir+"\n"))
+		if err != nil || len(c.Sources) != 2 || c.Sources[0].ID != "company" || c.Sources[1].ID != "glossary" {
+			t.Fatalf("expected distinct company and glossary sources: %+v %v", c.Sources, err)
+		}
+	}
+}
+
+func TestWorkingDirectoryDiscoverySkipsNonRegularFiles(t *testing.T) {
+	t.Chdir(t.TempDir())
+	if err := os.Mkdir("glossary.yaml", 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("glossary.yaml", "glossary.json"); err != nil {
+		t.Fatal(err)
+	}
+	c, err := Load(writeConfig(t, "terms_dir: missing\n"))
+	if err != nil || len(c.Sources) != 0 {
+		t.Fatalf("expected non-regular files to be ignored: %+v %v", c.Sources, err)
+	}
+}
+
 func TestScrapeIntervalBounds(t *testing.T) {
 	for _, scope := range []string{"global", "source"} {
 		for _, tc := range []struct {
