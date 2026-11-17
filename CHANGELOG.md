@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/alampros/jargonary/compare/v0.4.0...v0.4.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **build:** git state mismatch ([5ec31e9](https://github.com/alampros/jargonary/commit/5ec31e9a42a5158f44a5815b7a1ffd673571e8c5))
+
 ## [0.4.0](https://github.com/alampros/jargonary/compare/v0.3.0...v0.4.0) (2026-11-17)
 
 
