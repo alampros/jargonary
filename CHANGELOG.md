@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/alampros/jargonary/compare/v0.2.0...v0.2.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* use full package name ([7b1bd40](https://github.com/alampros/jargonary/commit/7b1bd40dc02b9b604d9e021a1778e01a8d3b5834))
+
 ## [0.2.0](https://github.com/alampros/jargonary/compare/v0.1.0...v0.2.0) (2026-11-06)
 
 
